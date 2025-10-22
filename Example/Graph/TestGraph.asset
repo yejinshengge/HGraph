@@ -25,7 +25,9 @@ MonoBehaviour:
   NodeName: Start
   Position: {x: 100, y: 200}
   Size: {x: 74.5, y: 77}
-  output: 
+  output:
+    GUID: bf0bd818-ac98-406c-88bd-899775edd3ec
+    ToGUID: 6d28afd5-5716-4c96-8e8a-71081cc62d90
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,19 +77,35 @@ MonoBehaviour:
     SerializationNodes: []
   GUID: c5fe342a-3d1c-4334-bca8-27877d161fcd
   NodeName: "\u6D4B\u8BD5\u8282\u70B9"
-  Position: {x: 312, y: 271}
-  Size: {x: 0, y: 0}
-  input: 
+  Position: {x: 321, y: -12}
+  Size: {x: 233, y: 450}
+  input:
+    GUID: 6d28afd5-5716-4c96-8e8a-71081cc62d90
+    FromGUID: bf0bd818-ac98-406c-88bd-899775edd3ec
   output:
-    GUID: 
+    GUID: c7a99f07-0597-4a84-b359-57b41aa5f690
     ToGUID: 
   output2:
-    GUID: 
+    GUID: 81ed93f5-e129-4c4e-b9b0-5765f07f13bb
     ToGUID: 
   intVal: 0
   stringVal: 
   boolVal: 0
   pieces1:
-    pieces: []
+    pieces:
+    - choice: 
+      output:
+        GUID: 8d6d5076-9314-4d11-b69a-acc8f5a76f65
+        ToGUID: 
+      input:
+        GUID: a9138640-f88d-4d0e-a234-5d955ddec69e
+        FromGUID: 
   pieces2:
-    pieces: []
+    pieces:
+    - choice: 
+      output:
+        GUID: 516233d2-d4cc-4751-a4c5-8b3b93350576
+        ToGUID: 
+      input:
+        GUID: c42971f3-690c-4734-8030-efa2e58fd6b9
+        FromGUID: 

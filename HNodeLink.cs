@@ -20,13 +20,13 @@ namespace HGraph
         public string TargetNodeGUID;
 
         /// <summary>
-        /// 起始端口名称
+        /// 起始端口GUID
         /// </summary>
-        public string BasePortName;
+        public string BasePortGUID;
 
         /// <summary>
-        /// 目标端口名称
+        /// 目标端口GUID
         /// </summary>
-        public string TargetPortName;
+        public string TargetPortGUID;
     }
 }

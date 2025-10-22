@@ -14,31 +14,20 @@ namespace HGraph.Editor
     /// </summary>
     public class HNodePieceListView
     {
-        // 端口创建委托
-        public delegate Port CreatePortDelegate(Orientation orientation, Direction direction, Port.Capacity capacity, Type type, string portName);
-        
-        // 刷新委托
-        public delegate void RefreshDelegate();
-
         private VisualElement _container;
         private FieldInfo _field;
         private Object _target;
-        
-        // 使用委托代替直接依赖NodeView
-        private CreatePortDelegate _createPort;
-        private RefreshDelegate _refreshView;
+        private HNodeView _view;
 
         public HNodePieceListView(
             FieldInfo field,
             Object target,
-            CreatePortDelegate createPort,
-            RefreshDelegate refreshView)
+            HNodeView view)
         {
             _container = new VisualElement();
             _field = field;
             _target = target;
-            _createPort = createPort;
-            _refreshView = refreshView;
+            _view = view;
         }
 
         public VisualElement Init()
@@ -166,27 +155,8 @@ namespace HGraph.Editor
                     
                     if (isInput)
                     {
-                        var input = field.GetValue(piece);
-                        // 如果端口字段为null，跳过（可能未初始化）
-                        if (input == null)
-                        {
-                            Debug.LogError($"Input port is null for {field.Name}");
-                            return null;
-                        }
-                        
-                        // 获取AllowMultiple字段
-                        var allowMultipleField = field.GetCustomAttribute<PortAttribute>();
-                        var allowMultiple = allowMultipleField != null && allowMultipleField.AllowMultiple;
-                        
-                        // 输入端口（端口名已经显示在圆圈旁边）
-                        var portName = $"{listFieldName}_{index}_{field.Name}";
-                        var port = _createPort(
-                            Orientation.Horizontal, 
-                            Direction.Input, 
-                            allowMultiple ? Port.Capacity.Multi : Port.Capacity.Single, 
-                            typeof(float),
-                            field.Name);
-                        port.name = portName;
+                        var port = HGraphUtility.CreatePort(_view, field,
+                            piece, Orientation.Horizontal);
                         fieldRow.Add(port);
                     }
                     
@@ -197,27 +167,8 @@ namespace HGraph.Editor
                     
                     if (isOutput)
                     {
-                        var output = field.GetValue(piece);
-                        // 如果端口字段为null，跳过（可能未初始化）
-                        if (output == null)
-                        {
-                            Debug.LogError($"Output port is null for {field.Name}");
-                            return null;
-                        }
-                        
-                        // 获取AllowMultiple字段
-                        var allowMultipleField = field.GetCustomAttribute<PortAttribute>();
-                        var allowMultiple = allowMultipleField != null && allowMultipleField.AllowMultiple;
-                        
-                        // 输出端口（端口名已经显示在圆圈旁边）
-                        var portName = $"{listFieldName}_{index}_{field.Name}";
-                        var port = _createPort(
-                            Orientation.Horizontal, 
-                            Direction.Output, 
-                            allowMultiple ? Port.Capacity.Multi : Port.Capacity.Single, 
-                            typeof(float),
-                            field.Name);
-                        port.name = portName;
+                        var port = HGraphUtility.CreatePort(_view, field,
+                            piece, Orientation.Horizontal);
                         fieldRow.Add(port);
                     }
                     
@@ -258,7 +209,8 @@ namespace HGraph.Editor
             if(_field == null) return;
             _container?.Clear();
             Init();
-            _refreshView?.Invoke();
+            _view.RefreshPorts();
+            _view.RefreshExpandedState();
         }
 
         public void Dispose()
@@ -267,8 +219,7 @@ namespace HGraph.Editor
             _container = null;
             _field = null;
             _target = null;
-            _createPort = null;
-            _refreshView = null;
+            _view = null;
         }
     }
 }

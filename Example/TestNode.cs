@@ -6,12 +6,12 @@ namespace HGraph.Example
     [HNode(typeof(TestGraph),Name = "测试节点")]
     public class TestNode : HNodeBase
     {
-        public InputPort<string> input = new InputPort<string>();
+        public InputPort<EmptyValue> input;
 
-        public OutputPort<string> output = new OutputPort<string>();
+        public OutputPort<string> output;
 
         [Port(AllowMultiple = true)]
-        public OutputPort<int> output2 = new OutputPort<int>();
+        public OutputPort<int> output2;
 
         public int intVal;
 
@@ -33,9 +33,9 @@ namespace HGraph.Example
         public string choice;
 
         [Port(AllowMultiple = true)]
-        public OutputPort<string> output = new OutputPort<string>();
+        public OutputPort<string> output;
 
         [Port(AllowMultiple = true)]
-        public InputPort<string> input = new InputPort<string>();
+        public InputPort<string> input;
     }
 }

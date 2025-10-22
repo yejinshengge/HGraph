@@ -2,11 +2,15 @@ using System;
 
 namespace HGraph
 {
-    [Serializable]
-    public abstract class HNodePortBase<T>
+
+    public abstract class HNodePortBase
     {
         public string GUID;
+    }
 
+    [Serializable]
+    public abstract class HNodePortBase<T>:HNodePortBase
+    {
         public T Value {get;set;}
     }
     

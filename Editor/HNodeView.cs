@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 using NodeView = UnityEditor.Experimental.GraphView.Node;
+using Object = UnityEngine.Object;
 
 
 namespace HGraph.Editor
@@ -259,32 +261,20 @@ namespace HGraph.Editor
 
 
         // 创建端口视图（仅用于节点级别的 Input/Output 字段）
-        private void _createNodePortView(FieldInfo field,object target)
+        private void _createNodePortView(FieldInfo field,Object target)
         {
             // 端口
             var isInput = field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(InputPort<>);
             var isOutput = field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(OutputPort<>);
-            if (isInput)
+            var port = HGraphUtility.CreatePort(this, field, target, Orientation.Horizontal);
+            
+            if(isInput)
             {
-                var input = field.GetValue(target);
-                // 获取AllowMultiple字段
-                var allowMultipleField = field.GetCustomAttribute<PortAttribute>();
-                var allowMultiple = allowMultipleField != null && allowMultipleField.AllowMultiple;
-
-                var port = _addPort(Direction.Input, allowMultiple ? Port.Capacity.Multi : Port.Capacity.Single);
-                port.portName = field.Name;
-                port.name = field.Name; // 设置name属性，用于Q查询
+                inputContainer.Add(port);
             }
-            if (isOutput)
+            if(isOutput)
             {
-                var output = field.GetValue(target);
-                // 获取AllowMultiple字段
-                var allowMultipleField = field.GetCustomAttribute<PortAttribute>();
-                var allowMultiple = allowMultipleField != null && allowMultipleField.AllowMultiple;
-
-                var port = _addPort(Direction.Output, allowMultiple ? Port.Capacity.Multi : Port.Capacity.Single);
-                port.portName = field.Name;
-                port.name = field.Name; // 设置name属性，用于Q查询
+                outputContainer.Add(port);
             }
         }
         
@@ -298,40 +288,14 @@ namespace HGraph.Editor
         
         // 创建 HNodePieceList 视图
         private void _createPieceListView(FieldInfo field)
-        {
-            // 创建端口的委托方法
-            HNodePieceListView.CreatePortDelegate createPortDelegate = (orientation, direction, capacity, type, portName) =>
-            {
-                var port = InstantiatePort(orientation, direction, capacity, type);
-                port.portName = portName;
-                return port;
-            };
-            
-            // 刷新视图的委托方法
-            HNodePieceListView.RefreshDelegate refreshDelegate = () =>
-            {
-                RefreshPorts();
-                RefreshExpandedState();
-            };
-            
-            var pieceListView = new HNodePieceListView(field, Node, createPortDelegate, refreshDelegate);
+        {            
+            var pieceListView = new HNodePieceListView(field, Node, this);
             var container = pieceListView.Init();
             if(container != null)
             {
                 _pieceListViews.Add(pieceListView);
                 extensionContainer.Add(container);
             }
-        }
-
-        // 添加端口
-        private Port _addPort(Direction dir, Port.Capacity capacity = Port.Capacity.Single)
-        {
-            var port = InstantiatePort(Orientation.Horizontal, dir, capacity, typeof(float));
-            if (dir == Direction.Output)
-                outputContainer.Add(port);
-            else
-                inputContainer.Add(port);
-            return port;
         }
 
 #endregion        

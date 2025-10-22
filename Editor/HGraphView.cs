@@ -91,18 +91,18 @@ namespace HGraph.Editor
                     {
                         // 记录Undo
                         Undo.RecordObject(_graph, "Create Edge");
-                        
+                        HGraphUtility.LinkPort(edge.output, edge.input);
                         // 创建连接数据
-                        var link = new HNodeLink()
-                        {
-                            BaseNodeGUID = outputNode.GUID,
-                            TargetNodeGUID = inputNode.GUID,
-                            BasePortName = edge.output.portName,
-                            TargetPortName = edge.input.portName
-                        };
+                        // var link = new HNodeLink()
+                        // {
+                        //     BaseNodeGUID = outputNode.GUID,
+                        //     TargetNodeGUID = inputNode.GUID,
+                        //     BasePortGUID = basePort.GUID,
+                        //     TargetPortGUID = targetPort.GUID
+                        // };
                         
-                        // 添加到图表数据
-                        _graph.links.Add(link);
+                        // // 添加到图表数据
+                        // _graph.links.Add(link);
                     }
                 }
                 
@@ -132,8 +132,8 @@ namespace HGraph.Editor
                             _graph.links.RemoveAll(link => 
                                 link.BaseNodeGUID == outputNode.GUID && 
                                 link.TargetNodeGUID == inputNode.GUID &&
-                                link.BasePortName == edge.output.portName &&
-                                link.TargetPortName == edge.input.portName);
+                                link.BasePortGUID == edge.output.portName &&
+                                link.TargetPortGUID == edge.input.portName);
                         }
                     }
                 }
@@ -262,7 +262,7 @@ namespace HGraph.Editor
                 {
                     var targetNode = _nodes.First(x => x.GUID == connections[i].TargetNodeGUID);
                     var link = connections[i];
-                    _linkNodes(node.outputContainer.Q<Port>(link.BasePortName),(Port)targetNode.inputContainer.Q<Port>(link.TargetPortName));
+                    _linkNodes(node.outputContainer.Q<Port>(link.BasePortGUID),(Port)targetNode.inputContainer.Q<Port>(link.TargetPortGUID));
 
                     // targetNode.SetPosition(new Rect(
                     //     _graph.nodes.First(x => x.GUID == targetNode.GUID).Position,
@@ -345,15 +345,30 @@ namespace HGraph.Editor
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {
             var compatiblePorts = new List<Port>();
+            if(!HGraphUtility.CheckPortValid(startPort)) return compatiblePorts;
             foreach (var port in ports)
             {
-                if (startPort != port && startPort.node != port.node)
-                {
-                    compatiblePorts.Add(port);
-                }
+                if(!HGraphUtility.CheckPortValid(port)) continue;
+                // 不是同一个端口，不是同一个节点
+                if (startPort == port || startPort.node == port.node)
+                    continue;
+                
+                // 输入端口只能连接输出端口
+                if (startPort.direction == port.direction)
+                    continue;
+                var startType = startPort.portType.GetGenericArguments()[0];
+                var endType = port.portType.GetGenericArguments()[0];
+                // 端口类型检查
+                if(startType != endType)
+                    continue;
+                
+                compatiblePorts.Add(port);
+                
             }
             return compatiblePorts;
         }
+        
+
 #endregion
 
 #region miniMap
