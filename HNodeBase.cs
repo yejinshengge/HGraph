@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -27,6 +28,18 @@ namespace HGraph
         /// 大小
         /// </summary>
         public Vector2 Size;
+
+        /// <summary>
+        /// 输入端口
+        /// </summary>
+        [ReadOnly]
+        public Dictionary<string,HNodePortBase> InputPorts = new Dictionary<string,HNodePortBase>();
+
+        /// <summary>
+        /// 输出端口
+        /// </summary>
+        [ReadOnly]
+        public Dictionary<string,HNodePortBase> OutputPorts = new Dictionary<string,HNodePortBase>();
 
     }
 

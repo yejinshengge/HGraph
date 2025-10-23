@@ -1,33 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-3858719888674476778
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15879fa8a300d4bba9139980754afa3b, type: 3}
-  m_Name: Start
-  m_EditorClassIdentifier: 
-  serializationData:
-    SerializedFormat: 2
-    SerializedBytes: 
-    ReferencedUnityObjects: []
-    SerializedBytesString: 
-    Prefab: {fileID: 0}
-    PrefabModificationsReferencedUnityObjects: []
-    PrefabModifications: []
-    SerializationNodes: []
-  GUID: cdb1be2e-cbb7-4e70-abd6-45878bd3e207
-  NodeName: Start
-  Position: {x: 100, y: 200}
-  Size: {x: 74.5, y: 77}
-  output:
-    GUID: bf0bd818-ac98-406c-88bd-899775edd3ec
-    ToGUID: 6d28afd5-5716-4c96-8e8a-71081cc62d90
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -50,11 +22,96 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   nodes:
-  - {fileID: -3858719888674476778}
-  - {fileID: 8928120274136279502}
-  links: []
+  - {fileID: 2608167232450300739}
+  - {fileID: 4186673845893632703}
+  links:
+  - BaseNodeGUID: 371aa1e2-28fd-41e6-8fe3-1404fc5087bb
+    TargetNodeGUID: dc3ceecc-559d-43f8-8a67-763b80f231eb
+    BasePortGUID: f5bfcac3-588a-4fd5-97d0-d6fb08f1a03f
+    TargetPortGUID: 0f64cf8f-a372-48c0-9b0c-52e1100c86e8
   exposedProperties: []
---- !u!114 &8928120274136279502
+--- !u!114 &2608167232450300739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15879fa8a300d4bba9139980754afa3b, type: 3}
+  m_Name: Start
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: InputPorts
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[HGraph.HNodePortBase,
+        HGraph.Runtime]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: OutputPorts
+      Entry: 7
+      Data: 2|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[HGraph.HNodePortBase,
+        HGraph.Runtime]], mscorlib
+    - Name: comparer
+      Entry: 9
+      Data: 1
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: f5bfcac3-588a-4fd5-97d0-d6fb08f1a03f
+    - Name: $v
+      Entry: 7
+      Data: 3|HGraph.OutputPort`1[[HGraph.EmptyValue, HGraph.Runtime]], HGraph.Runtime
+    - Name: GUID
+      Entry: 1
+      Data: f5bfcac3-588a-4fd5-97d0-d6fb08f1a03f
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  GUID: 371aa1e2-28fd-41e6-8fe3-1404fc5087bb
+  NodeName: Start
+  Position: {x: 100, y: 200}
+  Size: {x: 74.5, y: 77}
+  output:
+    GUID: f5bfcac3-588a-4fd5-97d0-d6fb08f1a03f
+--- !u!114 &4186673845893632703
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -74,20 +131,179 @@ MonoBehaviour:
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
-    SerializationNodes: []
-  GUID: c5fe342a-3d1c-4334-bca8-27877d161fcd
+    SerializationNodes:
+    - Name: InputPorts
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[HGraph.HNodePortBase,
+        HGraph.Runtime]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: 0f64cf8f-a372-48c0-9b0c-52e1100c86e8
+    - Name: $v
+      Entry: 7
+      Data: 2|HGraph.InputPort`1[[HGraph.EmptyValue, HGraph.Runtime]], HGraph.Runtime
+    - Name: GUID
+      Entry: 1
+      Data: 0f64cf8f-a372-48c0-9b0c-52e1100c86e8
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: 2be7059a-7ff6-4b62-81a3-8d5101c7dbb2
+    - Name: $v
+      Entry: 7
+      Data: 3|HGraph.InputPort`1[[System.String, mscorlib]], HGraph.Runtime
+    - Name: GUID
+      Entry: 1
+      Data: 2be7059a-7ff6-4b62-81a3-8d5101c7dbb2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: fa474294-c195-4508-a1b1-79a6c8c22779
+    - Name: $v
+      Entry: 7
+      Data: 4|HGraph.InputPort`1[[System.String, mscorlib]], HGraph.Runtime
+    - Name: GUID
+      Entry: 1
+      Data: fa474294-c195-4508-a1b1-79a6c8c22779
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: OutputPorts
+      Entry: 7
+      Data: 5|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[HGraph.HNodePortBase,
+        HGraph.Runtime]], mscorlib
+    - Name: comparer
+      Entry: 9
+      Data: 1
+    - Name: 
+      Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: ff07e0f5-9e8a-4347-9466-290e8ff93cfc
+    - Name: $v
+      Entry: 7
+      Data: 6|HGraph.OutputPort`1[[System.String, mscorlib]], HGraph.Runtime
+    - Name: GUID
+      Entry: 1
+      Data: ff07e0f5-9e8a-4347-9466-290e8ff93cfc
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: 929bae64-34ae-45e5-a57f-c952a1a84101
+    - Name: $v
+      Entry: 7
+      Data: 7|HGraph.OutputPort`1[[System.Int32, mscorlib]], HGraph.Runtime
+    - Name: GUID
+      Entry: 1
+      Data: 929bae64-34ae-45e5-a57f-c952a1a84101
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: 96a0cd92-ad1a-4ec0-82fe-37b4f030b474
+    - Name: $v
+      Entry: 7
+      Data: 8|HGraph.OutputPort`1[[System.String, mscorlib]], HGraph.Runtime
+    - Name: GUID
+      Entry: 1
+      Data: 96a0cd92-ad1a-4ec0-82fe-37b4f030b474
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: c98200c1-cbe8-4da9-89a4-fb68c99fe6c6
+    - Name: $v
+      Entry: 7
+      Data: 9|HGraph.OutputPort`1[[System.String, mscorlib]], HGraph.Runtime
+    - Name: GUID
+      Entry: 1
+      Data: c98200c1-cbe8-4da9-89a4-fb68c99fe6c6
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  GUID: dc3ceecc-559d-43f8-8a67-763b80f231eb
   NodeName: "\u6D4B\u8BD5\u8282\u70B9"
-  Position: {x: 321, y: -12}
+  Position: {x: 300, y: 8.5}
   Size: {x: 233, y: 450}
   input:
-    GUID: 6d28afd5-5716-4c96-8e8a-71081cc62d90
-    FromGUID: bf0bd818-ac98-406c-88bd-899775edd3ec
+    GUID: 0f64cf8f-a372-48c0-9b0c-52e1100c86e8
   output:
-    GUID: c7a99f07-0597-4a84-b359-57b41aa5f690
-    ToGUID: 
+    GUID: ff07e0f5-9e8a-4347-9466-290e8ff93cfc
   output2:
-    GUID: 81ed93f5-e129-4c4e-b9b0-5765f07f13bb
-    ToGUID: 
+    GUID: 929bae64-34ae-45e5-a57f-c952a1a84101
   intVal: 0
   stringVal: 
   boolVal: 0
@@ -95,17 +311,13 @@ MonoBehaviour:
     pieces:
     - choice: 
       output:
-        GUID: 8d6d5076-9314-4d11-b69a-acc8f5a76f65
-        ToGUID: 
+        GUID: 96a0cd92-ad1a-4ec0-82fe-37b4f030b474
       input:
-        GUID: a9138640-f88d-4d0e-a234-5d955ddec69e
-        FromGUID: 
+        GUID: 2be7059a-7ff6-4b62-81a3-8d5101c7dbb2
   pieces2:
     pieces:
     - choice: 
       output:
-        GUID: 516233d2-d4cc-4751-a4c5-8b3b93350576
-        ToGUID: 
+        GUID: c98200c1-cbe8-4da9-89a4-fb68c99fe6c6
       input:
-        GUID: c42971f3-690c-4734-8030-efa2e58fd6b9
-        FromGUID: 
+        GUID: fa474294-c195-4508-a1b1-79a6c8c22779

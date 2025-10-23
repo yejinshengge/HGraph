@@ -20,7 +20,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 节点数据
         /// </summary>
-        public HNodeBase Node;
+        public HNodeBase Node { get; private set; }
 
         // 属性视图
         private HPropertyView _propertyView;

@@ -36,8 +36,6 @@ namespace HGraph.Editor
             // 方向
             var dir = isInput ? Direction.Input : Direction.Output;
             var port = view.InstantiatePort(orientation, dir, capacity, field.FieldType);
-            port.name = field.Name;
-            port.portName = field.Name;
 
             var data = field.GetValue(target) as HNodePortBase;
             if (data != null && !string.IsNullOrEmpty(data.GUID))
@@ -51,9 +49,24 @@ namespace HGraph.Editor
                 port.userData = data;
                 field.SetValue(target, data);
                 Debug.Log($"创建端口 {data.GUID}");
+                
+                if(target is UnityEngine.Object unityObj)
+                {
+                    UnityEditor.EditorUtility.SetDirty(unityObj);
+                }
             }
+            port.name = data.GUID;
+            port.portName = field.Name;
+
+            var dict = isInput ? view.Node.InputPorts : view.Node.OutputPorts;
+            dict[data.GUID] = data;
 
             return port;
+        }
+
+        public static void RemovePort()
+        {
+
         }
         
         /// <summary>
@@ -73,22 +86,35 @@ namespace HGraph.Editor
         /// </summary>
         /// <param name="outputPort"></param>
         /// <param name="inputPort"></param>
-        public static void LinkPort(Port outputPort, Port inputPort)
+        public static HNodeLink LinkPort(Port outputPort, Port inputPort)
         {
             var basePort = outputPort.userData as HNodePortBase;
             var targetPort = inputPort.userData as HNodePortBase;
             if (basePort == null || targetPort == null)
             {
                 Debug.LogError("端口数据为空，无法创建连接");
-                return;
+                return null;
             }
             Debug.Log($"连接端口 {basePort.GUID} -> {targetPort.GUID}");
 
-            // 通过反射设置 ToGUID 和 FromGUID
-            var basePortType = basePort.GetType();
-            var targetPortType = targetPort.GetType();
-            basePortType.GetField(nameof(OutputPort<object>.ToGUID))?.SetValue(basePort, targetPort.GUID);
-            targetPortType.GetField(nameof(InputPort<object>.FromGUID))?.SetValue(targetPort, basePort.GUID);
+            var link = new HNodeLink()
+            {
+                BasePortGUID = basePort.GUID,
+                TargetPortGUID = targetPort.GUID
+            };
+
+            return link;
+        }
+
+        public static HNodeLink LinkPort(string baseNodeGUID,string targetNodeGUID,Port outputPort, Port inputPort)
+        {
+            var link = LinkPort(outputPort, inputPort);
+            if(link == null) return null;
+
+            link.BaseNodeGUID = baseNodeGUID;
+            link.TargetNodeGUID = targetNodeGUID;
+
+            return link;
         }
     }
 }

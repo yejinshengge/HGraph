@@ -91,18 +91,9 @@ namespace HGraph.Editor
                     {
                         // 记录Undo
                         Undo.RecordObject(_graph, "Create Edge");
-                        HGraphUtility.LinkPort(edge.output, edge.input);
-                        // 创建连接数据
-                        // var link = new HNodeLink()
-                        // {
-                        //     BaseNodeGUID = outputNode.GUID,
-                        //     TargetNodeGUID = inputNode.GUID,
-                        //     BasePortGUID = basePort.GUID,
-                        //     TargetPortGUID = targetPort.GUID
-                        // };
-                        
-                        // // 添加到图表数据
-                        // _graph.links.Add(link);
+                        var link = HGraphUtility.LinkPort(outputNode.GUID, inputNode.GUID, edge.output, edge.input);
+                        // 添加到图表数据
+                        _graph.links.Add(link);
                     }
                 }
                 
@@ -257,17 +248,15 @@ namespace HGraph.Editor
             var _nodes = nodes.ToList().Cast<HNodeView>().ToList();
             foreach(var node in _nodes)
             {
+                // 当前节点的所有连接
                 var connections = _graph.links.Where(x => x.BaseNodeGUID == node.GUID).ToList();
                 for(var i = 0; i < connections.Count; i++)
                 {
+                    // 目标节点
                     var targetNode = _nodes.First(x => x.GUID == connections[i].TargetNodeGUID);
                     var link = connections[i];
-                    _linkNodes(node.outputContainer.Q<Port>(link.BasePortGUID),(Port)targetNode.inputContainer.Q<Port>(link.TargetPortGUID));
 
-                    // targetNode.SetPosition(new Rect(
-                    //     _graph.nodes.First(x => x.GUID == targetNode.GUID).Position,
-                    //     DEFAULT_NODE_SIZE
-                    // ));
+                    _linkNodes(node.mainContainer.Q<Port>(link.BasePortGUID),targetNode.mainContainer.Q<Port>(link.TargetPortGUID));
                 }
 
             }

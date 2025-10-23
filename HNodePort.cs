@@ -1,10 +1,12 @@
 using System;
+using Sirenix.OdinInspector;
 
 namespace HGraph
 {
 
     public abstract class HNodePortBase
     {
+        [ReadOnly]
         public string GUID;
     }
 
@@ -17,13 +19,13 @@ namespace HGraph
     [Serializable]
     public class InputPort<T> : HNodePortBase<T>
     {
-        public string FromGUID;
+        
     }
 
     [Serializable]
     public class OutputPort<T> : HNodePortBase<T>
     {
-        public string ToGUID;
+        
     }
 
     public struct EmptyValue{}
