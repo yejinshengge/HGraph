@@ -201,6 +201,24 @@ namespace HGraph.Editor
             _updatePosition();
         }
 
+        // 更新位置大小
+        private void _updatePosition()
+        {
+            if (Node == null) return;
+            
+            var newPosition = GetPosition().position;
+            var newSize = GetPosition().size;
+            
+            // 只有在位置或大小真正改变时才记录Undo
+            if (Node.Position != newPosition || Node.Size != newSize)
+            {
+                UnityEditor.Undo.RecordObject(Node, "Move/Resize Node");
+                Node.Position = newPosition;
+                Node.Size = newSize;
+                UnityEditor.EditorUtility.SetDirty(Node);
+            }
+        }
+
 #endregion
 
 #region 视图
@@ -299,24 +317,6 @@ namespace HGraph.Editor
         }
 
 #endregion        
-
-        // 更新位置大小
-        private void _updatePosition()
-        {
-            if (Node == null) return;
-            
-            var newPosition = GetPosition().position;
-            var newSize = GetPosition().size;
-            
-            // 只有在位置或大小真正改变时才记录Undo
-            if (Node.Position != newPosition || Node.Size != newSize)
-            {
-                UnityEditor.Undo.RecordObject(Node, "Move/Resize Node");
-                Node.Position = newPosition;
-                Node.Size = newSize;
-                UnityEditor.EditorUtility.SetDirty(Node);
-            }
-        }
 
         /// <summary>
         /// 清理资源

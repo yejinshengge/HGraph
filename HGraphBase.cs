@@ -27,6 +27,17 @@ namespace HGraph
         /// </summary>
         public List<HBlackBoardProperty> exposedProperties = new List<HBlackBoardProperty>();
 
+        /// <summary>
+        /// 检查是否存在连接
+        /// </summary>
+        /// <param name="basePortGUID"></param>
+        /// <param name="targetPortGUID"></param>
+        /// <returns></returns>
+        public bool CheckLinkContains(string basePortGUID, string targetPortGUID)
+        {
+            return links.Any(link => link.BasePortGUID == basePortGUID && link.TargetPortGUID == targetPortGUID);
+        }
+
 #if UNITY_EDITOR
 
         /// <summary>

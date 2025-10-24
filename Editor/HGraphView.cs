@@ -123,8 +123,8 @@ namespace HGraph.Editor
                             _graph.links.RemoveAll(link => 
                                 link.BaseNodeGUID == outputNode.GUID && 
                                 link.TargetNodeGUID == inputNode.GUID &&
-                                link.BasePortGUID == edge.output.portName &&
-                                link.TargetPortGUID == edge.input.portName);
+                                link.BasePortGUID == edge.output.name &&
+                                link.TargetPortGUID == edge.input.name);
                         }
                     }
                 }
@@ -295,7 +295,16 @@ namespace HGraph.Editor
                 Undo.RecordObject(_graph, "Delete Node");
             }
             
-            // 删除节点配置
+            // 收集所有要删除的边（连接到要删除节点的边）
+            var edgesToDelete = new List<Edge>();
+            foreach (var nodeView in nodesToDelete)
+            {
+                var nodeEdges = edges.ToList().Where(edge => 
+                    edge.output?.node == nodeView || edge.input?.node == nodeView).ToList();
+                edgesToDelete.AddRange(nodeEdges);
+            }
+            
+            // 删除节点配置和数据中的连接
             foreach (var nodeView in nodesToDelete)
             {
                 // 找到对应的节点数据
@@ -325,8 +334,17 @@ namespace HGraph.Editor
                 AssetDatabase.SaveAssets();
             }
             
-            // 执行默认的删除操作（从视图中删除）
-            // 注意：边的删除会在 graphViewChanged 回调中统一处理
+            // 先删除所有相关的边，并断开端口连接
+            foreach (var edge in edgesToDelete)
+            {
+                // 断开端口连接
+                edge.input?.Disconnect(edge);
+                edge.output?.Disconnect(edge);
+                // 从视图中移除边
+                RemoveElement(edge);
+            }
+            
+            // 执行默认的删除操作（从视图中删除节点）
             DeleteSelection();
         }
 
@@ -335,23 +353,27 @@ namespace HGraph.Editor
         {
             var compatiblePorts = new List<Port>();
             if(!HGraphUtility.CheckPortValid(startPort)) return compatiblePorts;
-            foreach (var port in ports)
+            var startPortData = startPort.userData as HNodePortBase;
+            foreach (var endPort in ports)
             {
-                if(!HGraphUtility.CheckPortValid(port)) continue;
+                if(!HGraphUtility.CheckPortValid(endPort)) continue;
+                var endPortData = endPort.userData as HNodePortBase;
                 // 不是同一个端口，不是同一个节点
-                if (startPort == port || startPort.node == port.node)
+                if (startPort == endPort || startPort.node == endPort.node)
                     continue;
-                
+                // 端口间已存在连接    
+                if(_graph.CheckLinkContains(startPortData.GUID, endPortData.GUID))
+                    continue;
                 // 输入端口只能连接输出端口
-                if (startPort.direction == port.direction)
+                if (startPort.direction == endPort.direction)
                     continue;
                 var startType = startPort.portType.GetGenericArguments()[0];
-                var endType = port.portType.GetGenericArguments()[0];
+                var endType = endPort.portType.GetGenericArguments()[0];
                 // 端口类型检查
                 if(startType != endType)
                     continue;
                 
-                compatiblePorts.Add(port);
+                compatiblePorts.Add(endPort);
                 
             }
             return compatiblePorts;

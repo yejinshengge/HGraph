@@ -8,10 +8,10 @@ namespace HGraph.Example
     {
         public InputPort<EmptyValue> input;
 
-        public OutputPort<string> output;
+        public OutputPort<EmptyValue> output;
 
         [Port(AllowMultiple = true)]
-        public OutputPort<int> output2;
+        public OutputPort<EmptyValue> output2;
 
         public int intVal;
 
@@ -33,9 +33,9 @@ namespace HGraph.Example
         public string choice;
 
         [Port(AllowMultiple = true)]
-        public OutputPort<string> output;
+        public OutputPort<EmptyValue> output;
 
         [Port(AllowMultiple = true)]
-        public InputPort<string> input;
+        public InputPort<EmptyValue> input;
     }
 }
