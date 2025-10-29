@@ -28,5 +28,24 @@ namespace HGraph
         {
             return new T();
         }
+
+        public List<T> ToList()
+        {
+            return pieces;
+        }
+
+        /// <summary>
+        /// 通过下标访问pieces
+        /// </summary>
+        public T this[int index]
+        {
+            get => pieces[index];
+            set => pieces[index] = value;
+        }
+
+        /// <summary>
+        /// pieces数量
+        /// </summary>
+        public int Count => pieces.Count;
     }
 }

@@ -38,6 +38,137 @@ namespace HGraph
             return links.Any(link => link.BasePortGUID == basePortGUID && link.TargetPortGUID == targetPortGUID);
         }
 
+        /// <summary>
+        /// 获取第一个节点
+        /// </summary>
+        /// <returns></returns>
+        public HNodeBase GetFirstNode()
+        {
+            var startNode = _getStartNode() as StartNode;
+            if(startNode == null)
+                return null;
+            return GetPortNextNode(startNode.output);
+        }
+
+        /// <summary>
+        /// 获取节点
+        /// </summary>
+        /// <param name="nodeGUID"></param>
+        /// <returns></returns>
+        public HNodeBase GetNode(string nodeGUID)
+        {
+            return nodes.FirstOrDefault(n => n.GUID == nodeGUID);
+        }
+
+        /// <summary>
+        /// 获取当前端口连接的下一个节点
+        /// </summary>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public HNodeBase GetPortNextNode(HNodePortBase port)
+        {
+            var nextNodes = GetPortNextNodes(port);
+            if(nextNodes.Count == 0)
+                return null;
+            return nextNodes[0];
+        }
+
+        /// <summary>
+        /// 获取当前端口连接的所有节点
+        /// </summary>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public List<HNodeBase> GetPortNextNodes(HNodePortBase port)
+        {
+            var result = new List<HNodeBase>();
+            foreach(var link in links)
+            {
+                if(link.BasePortGUID != port.GUID)
+                    continue;
+                var targetNode = GetNode(link.TargetNodeGUID);
+                if(targetNode == null)
+                    continue;
+                result.Add(targetNode);
+            }
+            return result;
+        }
+
+#region 端口
+
+        /// <summary>
+        /// 获取当前输出端口连接的下一个输入端口
+        /// </summary>
+        /// <param name="outputPort"></param>
+        /// <returns></returns>
+        public HNodePortBase GetNextPort(HNodePortBase outputPort)
+        {
+            var nextPorts = GetNextPorts(outputPort);
+            if(nextPorts.Count == 0)
+                return null;
+            return nextPorts[0];
+        }
+        /// <summary>
+        /// 获取当前输出端口连接的所有输入端口
+        /// </summary>
+        /// <param name="outputPort"></param>
+        /// <returns></returns>
+        public List<HNodePortBase> GetNextPorts(HNodePortBase outputPort)
+        {
+            var result = new List<HNodePortBase>();
+            foreach(var link in links)
+            {
+                if(link.BasePortGUID != outputPort.GUID)
+                    continue;
+                var targetNode = GetNode(link.TargetNodeGUID);
+                if(targetNode == null)
+                    continue;
+                var targetPort = targetNode.GetInputPort(link.TargetPortGUID);
+                if(targetPort == null)
+                    continue;
+                result.Add(targetPort);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 获取当前输入端口连接的下一个输出端口GUID
+        /// </summary>
+        /// <param name="currentPortGUID"></param>
+        /// <returns></returns>
+        public string GetNextPortId(string currentPortGUID)
+        {
+            var nextPortsIds = GetNextPortsIds(currentPortGUID);
+            if(nextPortsIds.Count == 0)
+            {
+                return string.Empty;
+            }
+            return nextPortsIds[0];
+        }
+
+        /// <summary>
+        /// 获取当前输入端口连接的所有输出端口GUID
+        /// </summary>
+        /// <param name="currentPortGUID"></param>
+        /// <returns></returns>
+        public List<string> GetNextPortsIds(string currentPortGUID)
+        {
+            var result = new List<string>();
+            foreach(var link in links)
+            {
+                if(link.BasePortGUID == currentPortGUID)
+                {
+                    result.Add(link.TargetPortGUID);
+                }
+            }
+            return result;
+        }
+#endregion
+
+    // 获取起始节点
+    private HNodeBase _getStartNode()
+    {
+        return nodes.FirstOrDefault(n => n is StartNode);
+    }
 #if UNITY_EDITOR
 
         /// <summary>

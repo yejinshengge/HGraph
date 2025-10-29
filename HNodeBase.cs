@@ -41,6 +41,33 @@ namespace HGraph
         [ReadOnly]
         public Dictionary<string,HNodePortBase> OutputPorts = new Dictionary<string,HNodePortBase>();
 
+        /// <summary>
+        /// 获取输入端口
+        /// </summary>
+        /// <param name="portId"></param>
+        /// <returns></returns>
+        public HNodePortBase GetInputPort(string portId)
+        {
+            if(InputPorts.TryGetValue(portId, out var port))
+            {
+                return port;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 获取输出端口
+        /// </summary>
+        /// <param name="portId"></param>
+        /// <returns></returns>
+        public HNodePortBase GetOutputPort(string portId)
+        {
+            if(OutputPorts.TryGetValue(portId, out var port))
+            {
+                return port;
+            }
+            return null;
+        }
     }
 
     #region Attributes

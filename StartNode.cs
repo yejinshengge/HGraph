@@ -2,7 +2,7 @@ namespace HGraph
 {
     public class StartNode:HNodeBase
     {
-        [Port(AllowMultiple = true)]
+        [Port(AllowMultiple = false)]
         public OutputPort<EmptyValue> output;
     }
 }

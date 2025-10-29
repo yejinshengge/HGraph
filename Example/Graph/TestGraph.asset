@@ -28,10 +28,6 @@ MonoBehaviour:
   - BaseNodeGUID: 371aa1e2-28fd-41e6-8fe3-1404fc5087bb
     TargetNodeGUID: 3e52f68d-1e45-4cf4-bc27-5452e2dc5076
     BasePortGUID: f5bfcac3-588a-4fd5-97d0-d6fb08f1a03f
-    TargetPortGUID: 78e08452-6230-48e3-804c-f246600ace3f
-  - BaseNodeGUID: 371aa1e2-28fd-41e6-8fe3-1404fc5087bb
-    TargetNodeGUID: 3e52f68d-1e45-4cf4-bc27-5452e2dc5076
-    BasePortGUID: f5bfcac3-588a-4fd5-97d0-d6fb08f1a03f
     TargetPortGUID: 1f7293bf-90ea-4f2b-9eea-d402430a6bda
   exposedProperties: []
 --- !u!114 &368508580872697442
