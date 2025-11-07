@@ -253,7 +253,8 @@ namespace HGraph.Editor
                 for(var i = 0; i < connections.Count; i++)
                 {
                     // 目标节点
-                    var targetNode = _nodes.First(x => x.GUID == connections[i].TargetNodeGUID);
+                    var targetNode = _nodes.FirstOrDefault(x => x.GUID == connections[i].TargetNodeGUID);
+                    if(targetNode == null) continue;
                     var link = connections[i];
 
                     _linkNodes(node.mainContainer.Q<Port>(link.BasePortGUID),targetNode.mainContainer.Q<Port>(link.TargetPortGUID));

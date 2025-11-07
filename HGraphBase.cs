@@ -28,15 +28,20 @@ namespace HGraph
         public List<HBlackBoardProperty> exposedProperties = new List<HBlackBoardProperty>();
 
         /// <summary>
-        /// 检查是否存在连接
+        /// 当前节点队列
         /// </summary>
-        /// <param name="basePortGUID"></param>
-        /// <param name="targetPortGUID"></param>
-        /// <returns></returns>
-        public bool CheckLinkContains(string basePortGUID, string targetPortGUID)
-        {
-            return links.Any(link => link.BasePortGUID == basePortGUID && link.TargetPortGUID == targetPortGUID);
-        }
+        [NonSerialized]
+        private Queue<HNodeBase> _curNodes = new();
+
+        /// <summary>
+        /// 避免重复
+        /// </summary>
+        [NonSerialized]
+        private HashSet<HNodeBase> _curNodesSet = new();
+
+
+
+#region 节点        
 
         /// <summary>
         /// 获取第一个节点
@@ -48,6 +53,12 @@ namespace HGraph
             if(startNode == null)
                 return null;
             return GetPortNextNode(startNode.output);
+        }
+
+        // 获取起始节点
+        private HNodeBase _getStartNode()
+        {
+            return nodes.FirstOrDefault(n => n is StartNode);
         }
 
         /// <summary>
@@ -93,7 +104,20 @@ namespace HGraph
             return result;
         }
 
+#endregion        
+
 #region 端口
+
+        /// <summary>
+        /// 检查是否存在连接
+        /// </summary>
+        /// <param name="basePortGUID"></param>
+        /// <param name="targetPortGUID"></param>
+        /// <returns></returns>
+        public bool CheckLinkContains(string basePortGUID, string targetPortGUID)
+        {
+            return links.Any(link => link.BasePortGUID == basePortGUID && link.TargetPortGUID == targetPortGUID);
+        }
 
         /// <summary>
         /// 获取当前输出端口连接的下一个输入端口
@@ -162,13 +186,96 @@ namespace HGraph
             }
             return result;
         }
+
+        /// <summary>
+        /// 获取当前输入端口连接的下一个输出端口GUID
+        /// </summary>
+        /// <param name="currentPortGUID"></param>
+        /// <param name="targetNodeId"></param>
+        /// <returns></returns>
+        public List<string> GetNextPortsIds(string currentPortGUID,string targetNodeId)
+        {
+            var result = new List<string>();
+            foreach(var link in links)
+            {
+                if(link.BasePortGUID == currentPortGUID && link.TargetNodeGUID == targetNodeId)
+                {
+                    result.Add(link.TargetPortGUID);
+                }
+            }
+            return result;
+        }
 #endregion
 
-    // 获取起始节点
-    private HNodeBase _getStartNode()
-    {
-        return nodes.FirstOrDefault(n => n is StartNode);
-    }
+#region 生命周期
+
+        public void Init()
+        {
+            var firstNode = GetFirstNode();
+            _curNodes.Append(firstNode);
+            _curNodesSet.Add(firstNode);
+            OnInit();
+        }
+
+        protected virtual void OnInit(){}
+
+        public bool DoCurNode()
+        {
+            bool execute = false;
+            var cnt = _curNodes.Count;
+            for(var i = 0; i < cnt; i++)
+            {
+                execute = true;
+                var node = _curNodes.Dequeue();
+                _curNodesSet.Remove(node);
+                // 执行当前节点
+                node.Enter();
+                // 获取输出
+                var ports = node.GetValidOutputPorts();
+                // 获取下一节点
+                foreach(var port in ports)
+                {
+                    // 添加到队列
+                    var nodes = GetPortNextNodes(port);
+
+                    foreach (var nextNode in nodes)
+                    {
+                        if(!_curNodesSet.Contains(nextNode))
+                        {
+                            _curNodes.Enqueue(nextNode);
+                            _curNodesSet.Add(nextNode);
+                        }
+                    }
+
+                    // 端口赋值
+                    var nextPorts = GetNextPorts(port);
+                    foreach (var nextPort in nextPorts)
+                    {
+                        nextPort.SetValue(port);
+                    }
+                }
+                // 退出节点
+                node.Exit();
+            }
+            return execute;
+        }
+
+        public void CleanUp()
+        {
+            while(_curNodes.Count > 0)
+            {
+                var node = _curNodes.Dequeue();
+                node.Exit();
+            }
+            _curNodes.Clear();
+            _curNodesSet.Clear();
+            OnCleanUp();
+        }
+
+        protected virtual void OnCleanUp(){}
+
+#endregion
+
 #if UNITY_EDITOR
 
         /// <summary>

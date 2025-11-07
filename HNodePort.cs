@@ -1,5 +1,6 @@
 using System;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace HGraph
 {
@@ -8,12 +9,44 @@ namespace HGraph
     {
         [ReadOnly]
         public string GUID;
+
+        public abstract void Clear();
+
+        public abstract bool IsValid();
+
+        public abstract void SetValue(HNodePortBase sourcePort);
     }
 
     [Serializable]
     public abstract class HNodePortBase<T>:HNodePortBase
     {
         public T Value {get;set;}
+
+        [NonSerialized]
+        private bool _hasVal;
+
+        public override void SetValue(HNodePortBase sourcePort)
+        {
+            var source = sourcePort as HNodePortBase<T>;
+            if(source == null)
+            {
+                Debug.LogError($"源端口类型不匹配");
+                return;
+            }
+            Value = source.Value;
+            _hasVal = true;
+        }
+
+        public override void Clear()
+        {
+            _hasVal = false;
+            Value = default;
+        }
+
+        public override bool IsValid()
+        {
+            return _hasVal;
+        }
     }
     
     [Serializable]

@@ -68,6 +68,49 @@ namespace HGraph
             }
             return null;
         }
+
+        /// <summary>
+        /// 获取有效的输出端口
+        /// </summary>
+        /// <returns></returns>
+        public List<HNodePortBase> GetValidOutputPorts()
+        {   
+            var result = new List<HNodePortBase>();
+            foreach(var port in OutputPorts.Values)
+            {
+                if(port.IsValid())
+                {
+                    result.Add(port);
+                }
+            }
+            return result;
+        }
+
+        #region 生命周期
+
+        internal void Enter()
+        {
+            OnEnter();
+        }
+
+        internal void Exit()
+        {
+            foreach (var item in InputPorts.Values)
+            {
+                item.Clear();
+            }
+            foreach (var item in OutputPorts.Values)
+            {
+                item.Clear();
+            }
+            OnExit();
+        }
+
+        public virtual void OnEnter(){}
+
+        public virtual void OnExit(){}
+
+        #endregion
     }
 
     #region Attributes
