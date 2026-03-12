@@ -1,0 +1,18 @@
+{
+    "name": "HGraph.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:fcce9410ac66842dfa1b62352c16f030"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
