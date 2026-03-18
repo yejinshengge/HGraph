@@ -249,6 +249,21 @@ namespace HGraph.Editor
         }
 
         /// <summary>
+        /// 重建所有节点视图的动态端口，并在之后刷新连线视图。
+        /// 当 Inspector 编辑导致某节点动态端口数量变化时由窗口调用。
+        /// </summary>
+        public void RefreshNodePortsFromModel()
+        {
+            foreach (var nodeView in _nodeViewsByGuid.Values)
+            {
+                nodeView.RefreshDynamicPorts();
+            }
+
+            // 端口视图重建后，连线视图中的端口引用已失效，需要整体重建
+            RefreshLinksFromModel();
+        }
+
+        /// <summary>
         /// 根据节点 GUID、端口 GUID 与方向查找端口视图。
         /// </summary>
         private bool _tryGetPortView(string nodeGuid, string portId, Direction direction, out HPortView portView)

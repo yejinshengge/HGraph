@@ -100,7 +100,7 @@ namespace HGraph.Editor
         }
 
         /// <summary>
-        /// 根据成员信息与端口配置创建端口视图。
+        /// 根据成员信息与端口配置创建静态端口视图。
         /// </summary>
         /// <param name="portData">端口数据。</param>
         /// <param name="member">声明端口的成员。</param>
@@ -127,6 +127,41 @@ namespace HGraph.Editor
                 capacity,
                 valueType,
                 onConnectRequested);
+        }
+
+        /// <summary>
+        /// 根据动态端口描述符创建动态端口视图。
+        /// 动态端口使用描述符的 <see cref="DynamicPortDescriptor.Label"/> 作为显示名，
+        /// 而非通过反射成员名推断。
+        /// </summary>
+        /// <param name="portData">端口数据。</param>
+        /// <param name="descriptor">动态端口描述符。</param>
+        /// <param name="direction">端口方向。</param>
+        /// <param name="onConnectRequested">连接成功后的回调。</param>
+        /// <returns>创建完成的端口视图。</returns>
+        public static HPortView CreateDynamic(
+            HPort portData,
+            DynamicPortDescriptor descriptor,
+            Direction direction,
+            Action<HPortView, HPortView> onConnectRequested)
+        {
+            var capacity = descriptor.AllowMultiple ? Capacity.Multi : Capacity.Single;
+            var valueType = descriptor.ValueType ?? typeof(object);
+
+            // 动态端口以描述符的 Key 作为内部 memberName，Label 作为显示名
+            var portView = new HPortView(
+                descriptor.Key,
+                portData,
+                portAttribute: null,
+                Orientation.Horizontal,
+                direction,
+                capacity,
+                valueType,
+                onConnectRequested);
+
+            // 覆盖端口显示名为用户可读的 Label
+            portView.portName = descriptor.Label;
+            return portView;
         }
 
         /// <summary>

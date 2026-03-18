@@ -50,6 +50,8 @@ namespace HGraph.Editor
                 _node = (HNode)Activator.CreateInstance(_nodeType);
                 _node.GraphPosition = _position;
                 HGraphNodePortUtility.EnsureStaticPorts(_node);
+                // 初始化动态端口，使节点一创建就拥有正确的端口实例
+                _node.RebuildDynamicPorts();
             }
 
             _insertIndex = Mathf.Clamp(_insertIndex < 0 ? context.Graph.Nodes.Count : _insertIndex, 0, context.Graph.Nodes.Count);

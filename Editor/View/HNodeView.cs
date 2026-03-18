@@ -31,14 +31,26 @@ namespace HGraph.Editor
         private readonly HashSet<string> _portMemberNames = new HashSet<string>();
 
         /// <summary>
-        /// 输入端口索引，便于按端口 ID 恢复连线。
+        /// 输入端口索引（静态 + 动态），便于按端口 ID 恢复连线。
         /// </summary>
         private readonly Dictionary<string, HPortView> _inputPorts = new Dictionary<string, HPortView>();
 
         /// <summary>
-        /// 输出端口索引，便于按端口 ID 恢复连线。
+        /// 输出端口索引（静态 + 动态），便于按端口 ID 恢复连线。
         /// </summary>
         private readonly Dictionary<string, HPortView> _outputPorts = new Dictionary<string, HPortView>();
+
+        /// <summary>
+        /// 动态输入端口集合，与 <see cref="_inputPorts"/> 共享视图实例，
+        /// 但单独跟踪以支持局部刷新时精确移除。
+        /// </summary>
+        private readonly List<HPortView> _dynamicInputPortViews = new List<HPortView>();
+
+        /// <summary>
+        /// 动态输出端口集合，与 <see cref="_outputPorts"/> 共享视图实例，
+        /// 但单独跟踪以支持局部刷新时精确移除。
+        /// </summary>
+        private readonly List<HPortView> _dynamicOutputPortViews = new List<HPortView>();
 
         private readonly Action<HPortView, HPortView> _onConnectRequested;
 
@@ -81,7 +93,7 @@ namespace HGraph.Editor
         }
 
         /// <summary>
-        /// 扫描节点上的端口特性并创建输入/输出端口视图。
+        /// 扫描节点上的端口特性并创建输入/输出端口视图（静态端口 + 动态端口）。
         /// </summary>
         private void _setupPorts()
         {
@@ -112,6 +124,70 @@ namespace HGraph.Editor
                 }
             }
 
+            _setupDynamicPorts();
+            RefreshPorts();
+        }
+
+        /// <summary>
+        /// 根据节点当前的动态端口数据创建端口视图，并注册到全局端口索引中。
+        /// </summary>
+        private void _setupDynamicPorts()
+        {
+            foreach (var (descriptor, portData) in NodeData.GetDynamicPortsWithData())
+            {
+                var direction = descriptor.Direction == PortDirection.Input
+                    ? UnityEditor.Experimental.GraphView.Direction.Input
+                    : UnityEditor.Experimental.GraphView.Direction.Output;
+
+                var portView = HPortView.CreateDynamic(portData, descriptor, direction, _onConnectRequested);
+
+                if (direction == UnityEditor.Experimental.GraphView.Direction.Input)
+                {
+                    _inputPorts[portView.PortId] = portView;
+                    _dynamicInputPortViews.Add(portView);
+                    inputContainer.Add(portView);
+                }
+                else
+                {
+                    _outputPorts[portView.PortId] = portView;
+                    _dynamicOutputPortViews.Add(portView);
+                    outputContainer.Add(portView);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 重建动态端口视图：
+        /// <list type="number">
+        ///   <item>从容器与索引中移除旧动态端口视图；</item>
+        ///   <item>调用 <see cref="HNode.RebuildDynamicPorts"/> 同步数据层；</item>
+        ///   <item>依据最新数据重建视图并注册到端口索引；</item>
+        ///   <item>通知 GraphView 刷新端口布局。</item>
+        /// </list>
+        /// </summary>
+        public void RefreshDynamicPorts()
+        {
+            // 从索引和容器中移除旧动态输入端口
+            foreach (var portView in _dynamicInputPortViews)
+            {
+                _inputPorts.Remove(portView.PortId);
+                inputContainer.Remove(portView);
+            }
+            _dynamicInputPortViews.Clear();
+
+            // 从索引和容器中移除旧动态输出端口
+            foreach (var portView in _dynamicOutputPortViews)
+            {
+                _outputPorts.Remove(portView.PortId);
+                outputContainer.Remove(portView);
+            }
+            _dynamicOutputPortViews.Clear();
+
+            // 同步数据层（已在 EditNodeStateCommand 中调用过，此处再次调用保证幂等）
+            NodeData.RebuildDynamicPorts();
+
+            // 重建视图
+            _setupDynamicPorts();
             RefreshPorts();
         }
 

@@ -502,9 +502,17 @@ namespace HGraph.Editor
                     _graphView.RefreshStructureFromModel();
                 }
             }
-            else if ((refreshMode & GraphCommandRefreshMode.Links) != 0)
+            else
             {
-                _graphView?.RefreshLinksFromModel();
+                // NodePorts 需要重建受影响节点的动态端口视图，完成后连线视图也需一并刷新
+                if ((refreshMode & GraphCommandRefreshMode.NodePorts) != 0)
+                {
+                    _graphView?.RefreshNodePortsFromModel();
+                }
+                else if ((refreshMode & GraphCommandRefreshMode.Links) != 0)
+                {
+                    _graphView?.RefreshLinksFromModel();
+                }
             }
 
             if ((refreshMode & GraphCommandRefreshMode.NodePositions) != 0)

@@ -31,6 +31,11 @@ namespace HGraph.Editor
         /// <summary>
         /// 节点结构发生变化，需要刷新节点与连线。
         /// </summary>
-        Structure = 1 << 3
+        Structure = 1 << 3,
+
+        /// <summary>
+        /// 某节点的动态端口数量发生变化，需要重建受影响节点的端口视图并刷新连线。
+        /// </summary>
+        NodePorts = 1 << 4,
     }
 }
