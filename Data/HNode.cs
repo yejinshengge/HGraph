@@ -198,6 +198,23 @@ namespace HGraph
         }
 
         /// <summary>
+        /// 根据当前 <see cref="GetDynamicPorts"/> 返回的 Key 集合计算轻量签名，
+        /// 用于编辑器快速判断动态端口结构是否发生变化。
+        /// </summary>
+        public int ComputeDynamicPortSignature()
+        {
+            unchecked
+            {
+                var hash = 17;
+                foreach (var descriptor in GetDynamicPorts())
+                {
+                    hash = hash * 31 + (descriptor.Key?.GetHashCode() ?? 0);
+                }
+                return hash;
+            }
+        }
+
+        /// <summary>
         /// 将 <see cref="GetDynamicPorts"/> 的最新结果同步到 <see cref="Ports"/> 与绑定列表：
         /// <list type="bullet">
         ///   <item>新增描述符 → 创建 <see cref="HPort"/> 并记录绑定。</item>

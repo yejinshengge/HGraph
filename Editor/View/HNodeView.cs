@@ -59,6 +59,11 @@ namespace HGraph.Editor
         private readonly Action<HNode, HNode, HNode> _onInspectorChanged;
 
         /// <summary>
+        /// 上一帧动态端口描述符的签名缓存，用于检测 Odin 列表结构性变更。
+        /// </summary>
+        private int _lastDynamicPortSignature;
+
+        /// <summary>
         /// 从模型同步位置时为 true，用来阻止 `SetPosition` 把这次刷新误判为用户拖拽。
         /// </summary>
         private bool _isApplyingPositionFromModel;
@@ -86,6 +91,7 @@ namespace HGraph.Editor
             _applyPositionWithoutNotify(nodeData.GraphPosition);
 
             style.minWidth = 200;
+            _lastDynamicPortSignature = nodeData.ComputeDynamicPortSignature();
             _setupPorts();
             _setupInspector();
             RegisterCallback<MouseDownEvent>(_onMouseDown);
@@ -248,8 +254,18 @@ namespace HGraph.Editor
             }
             _propertyTree.EndDraw();
 
-            if (EditorGUI.EndChangeCheck())
+            var changed = EditorGUI.EndChangeCheck();
+
+            // Odin 对 List 的结构性操作（增删元素）可能不触发 EndChangeCheck，
+            // 通过动态端口签名变化来补充检测。
+            if (!changed)
             {
+                changed = NodeData.ComputeDynamicPortSignature() != _lastDynamicPortSignature;
+            }
+
+            if (changed)
+            {
+                _lastDynamicPortSignature = NodeData.ComputeDynamicPortSignature();
                 var afterSnapshot = GraphCommandSnapshotUtility.CreateCopy(NodeData);
                 if (!GraphCommandSnapshotUtility.AreEquivalent(beforeSnapshot, afterSnapshot))
                 {
