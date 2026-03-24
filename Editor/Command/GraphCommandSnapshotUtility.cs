@@ -43,8 +43,9 @@ namespace HGraph.Editor
                 return false;
             }
 
-            var leftBytes = SerializationUtility.SerializeValue(left, DataFormat.Binary, (SerializationContext)null);
-            var rightBytes = SerializationUtility.SerializeValue(right, DataFormat.Binary, (SerializationContext)null);
+            var context = new SerializationContext { Config = { SerializationPolicy = SerializationPolicies.Everything } };
+            var leftBytes = SerializationUtility.SerializeValue(left, DataFormat.Binary, context);
+            var rightBytes = SerializationUtility.SerializeValue(right, DataFormat.Binary, context);
             return _byteArrayEquals(leftBytes, rightBytes);
         }
 

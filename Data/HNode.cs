@@ -17,8 +17,7 @@ namespace HGraph
         /// <summary>
         /// 静态端口绑定记录，用于保存"成员名 -> 端口 GUID"的稳定映射。
         /// </summary>
-        [Serializable]
-        private sealed class StaticPortBinding
+        internal sealed class StaticPortBinding
         {
             /// <summary>
             /// 声明端口的成员名称。
@@ -46,8 +45,7 @@ namespace HGraph
         /// 动态端口绑定记录，用于保存"业务 Key -> 端口 GUID"的稳定映射。
         /// Key 由子类在 <see cref="GetDynamicPorts"/> 中提供，通常为选项的 GUID 等不变标识。
         /// </summary>
-        [Serializable]
-        private sealed class DynamicPortBinding
+        internal sealed class DynamicPortBinding
         {
             /// <summary>
             /// 动态端口的业务唯一标识（由子类提供，需保持稳定）。
@@ -76,7 +74,8 @@ namespace HGraph
         /// <summary>
         /// 节点唯一标识。
         /// </summary>
-        public string GUID { get; private set; } = Guid.NewGuid().ToString();
+        [ForceSerialize] private string _guid = Guid.NewGuid().ToString();
+        public string GUID => _guid;
 
         /// <summary>
         /// 节点在图画布中的位置。
@@ -89,17 +88,17 @@ namespace HGraph
         /// <summary>
         /// 节点持有的全部端口实例（静态 + 动态）。
         /// </summary>
-        protected List<HPort> Ports = new List<HPort>();
+        [ForceSerialize] protected List<HPort> Ports = new List<HPort>();
 
         /// <summary>
         /// 静态端口成员名到端口 GUID 的映射。
         /// </summary>
-        private readonly List<StaticPortBinding> _staticPortBindings = new List<StaticPortBinding>();
+        [ForceSerialize] private List<StaticPortBinding> _staticPortBindings = new List<StaticPortBinding>();
 
         /// <summary>
         /// 动态端口业务 Key 到端口 GUID 的映射，随节点数据变化增删。
         /// </summary>
-        private readonly List<DynamicPortBinding> _dynamicPortBindings = new List<DynamicPortBinding>();
+        [ForceSerialize] private List<DynamicPortBinding> _dynamicPortBindings = new List<DynamicPortBinding>();
 
         // ============ 公开访问 ============
 

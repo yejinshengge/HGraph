@@ -11,12 +11,14 @@ namespace HGraph
         /// <summary>
         /// 端口唯一标识。
         /// </summary>
-        public string GUID { get; private set; }
+        [ForceSerialize] private string _guid;
+        public string GUID => _guid;
 
         /// <summary>
         /// 当前端口所属节点的 GUID。
         /// </summary>
-        public string NodeGUID { get; private set; }
+        [ForceSerialize] private string _nodeGuid;
+        public string NodeGUID => _nodeGuid;
 
         /// <summary>
         /// 创建一个归属于指定节点的端口实例。
@@ -24,8 +26,8 @@ namespace HGraph
         /// <param name="nodeGuid">所属节点 GUID。</param>
         public HPort(string nodeGuid)
         {
-            GUID = Guid.NewGuid().ToString();
-            NodeGUID = nodeGuid;
+            _guid = Guid.NewGuid().ToString();
+            _nodeGuid = nodeGuid;
         }
     }
 }

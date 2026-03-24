@@ -61,7 +61,7 @@ namespace HGraph.Editor
         public static void SaveGraph(string path, HGraph graph)
         {
             Debug.Log($"[HGraph] 保存图到: {path} (类型: {graph.GetType().Name})");
-            // TODO: 通过 IHGraphPersistence 实现实际的序列化保存
+            HGraphPersistenceRegistry.Current.Save(path, graph, isEditor: true);
         }
 
         /// <summary>
@@ -73,8 +73,18 @@ namespace HGraph.Editor
         public static HGraph LoadGraph(string path)
         {
             Debug.Log($"[HGraph] 从文件加载图: {path}");
-            // TODO: 通过 IHGraphPersistence 实现实际的反序列化加载
-            return null;
+            var graph = HGraphPersistenceRegistry.Current.Load(path);
+
+            if (graph != null)
+            {
+                foreach (var node in graph.Nodes)
+                {
+                    HGraphNodePortUtility.EnsureStaticPorts(node);
+                    node.RebuildDynamicPorts();
+                }
+            }
+
+            return graph;
         }
     }
 }

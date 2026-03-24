@@ -8,22 +8,26 @@ namespace HGraph
         /// <summary>
         /// 输出端所在节点的 GUID。
         /// </summary>
-        public string FromNodeId { get; private set; }
+        [ForceSerialize] private string _fromNodeId;
+        public string FromNodeId => _fromNodeId;
 
         /// <summary>
         /// 输入端所在节点的 GUID。
         /// </summary>
-        public string ToNodeId { get; private set; }
+        [ForceSerialize] private string _toNodeId;
+        public string ToNodeId => _toNodeId;
 
         /// <summary>
         /// 输出端口的 GUID。
         /// </summary>
-        public string FromPortId { get; private set; }
+        [ForceSerialize] private string _fromPortId;
+        public string FromPortId => _fromPortId;
 
         /// <summary>
         /// 输入端口的 GUID。
         /// </summary>
-        public string ToPortId { get; private set; }
+        [ForceSerialize] private string _toPortId;
+        public string ToPortId => _toPortId;
 
         /// <summary>
         /// 构造一条连接两个端口的连线记录。
@@ -34,10 +38,10 @@ namespace HGraph
         /// <param name="toPortId">输入端口 GUID。</param>
         public HLink(string fromNodeId, string toNodeId, string fromPortId, string toPortId)
         {
-            FromNodeId = fromNodeId;
-            ToNodeId = toNodeId;
-            FromPortId = fromPortId;
-            ToPortId = toPortId;
+            _fromNodeId = fromNodeId;
+            _toNodeId = toNodeId;
+            _fromPortId = fromPortId;
+            _toPortId = toPortId;
         }
     }
 }
