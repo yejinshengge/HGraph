@@ -44,19 +44,19 @@ namespace HGraph
             member => !member.IsDefined(typeof(SerializeInEditorAttribute), true) && _shouldSerializeBase(member)
         );
 
-        public HGraph Load(string path)
+        public HGraphData Load(string path)
         {
             var bytes = File.ReadAllBytes(path);
             var context = new DeserializationContext { Config = { SerializationPolicy = editorPolicy } };
-            var data = SerializationUtility.DeserializeValue<HGraph>(bytes, dataFormat, context);
+            var data = SerializationUtility.DeserializeValue<HGraphData>(bytes, dataFormat, context);
             return data;
         }
 
-        public void Save(string path, HGraph graph, bool isEditor = false)
+        public void Save(string path, HGraphData graphData, bool isEditor = false)
         {
             var policy = isEditor ? editorPolicy : runtimePolicy;
             var context = new SerializationContext { Config = { SerializationPolicy = policy } };
-            var bytes = SerializationUtility.SerializeValue(graph, dataFormat, context);
+            var bytes = SerializationUtility.SerializeValue(graphData, dataFormat, context);
             File.WriteAllBytes(path, bytes);
         }
     }

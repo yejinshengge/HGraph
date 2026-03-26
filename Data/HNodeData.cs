@@ -12,7 +12,7 @@ namespace HGraph
     ///   <item><term>动态端口</term><description>通过重写 <see cref="GetDynamicPorts"/> 方法按需生成，数量随节点数据变化。</description></item>
     /// </list>
     /// </summary>
-    public abstract class HNode
+    public abstract class HNodeData
     {
         /// <summary>
         /// 静态端口绑定记录，用于保存"成员名 -> 端口 GUID"的稳定映射。
@@ -88,7 +88,7 @@ namespace HGraph
         /// <summary>
         /// 节点持有的全部端口实例（静态 + 动态）。
         /// </summary>
-        [ForceSerialize] protected List<HPort> Ports = new List<HPort>();
+        [ForceSerialize] protected List<HPortData> Ports = new List<HPortData>();
 
         /// <summary>
         /// 静态端口成员名到端口 GUID 的映射。
@@ -105,7 +105,7 @@ namespace HGraph
         /// <summary>
         /// 只读访问节点端口。
         /// </summary>
-        public IReadOnlyList<HPort> PortCollection => Ports;
+        public IReadOnlyList<HPortData> PortCollection => Ports;
 
         // ============ 静态端口 API ============
 
@@ -113,20 +113,20 @@ namespace HGraph
         /// 按端口 GUID 查找端口。
         /// </summary>
         /// <param name="portGuid">目标端口 GUID。</param>
-        /// <param name="port">查找到的端口。</param>
+        /// <param name="portData">查找到的端口。</param>
         /// <returns>是否查找成功。</returns>
-        public bool TryGetPort(string portGuid, out HPort port)
+        public bool TryGetPort(string portGuid, out HPortData portData)
         {
             foreach (var item in Ports)
             {
                 if (string.Equals(item.GUID, portGuid, StringComparison.Ordinal))
                 {
-                    port = item;
+                    portData = item;
                     return true;
                 }
             }
 
-            port = null;
+            portData = null;
             return false;
         }
 
@@ -134,17 +134,17 @@ namespace HGraph
         /// 按成员名查找静态端口。
         /// </summary>
         /// <param name="memberName">声明端口的成员名。</param>
-        /// <param name="port">查找到的端口。</param>
+        /// <param name="portData">查找到的端口。</param>
         /// <returns>是否查找成功。</returns>
-        public bool TryGetStaticPort(string memberName, out HPort port)
+        public bool TryGetStaticPort(string memberName, out HPortData portData)
         {
             var binding = _staticPortBindings.Find(item => string.Equals(item.MemberName, memberName, StringComparison.Ordinal));
-            if (binding != null && TryGetPort(binding.PortGuid, out port))
+            if (binding != null && TryGetPort(binding.PortGuid, out portData))
             {
                 return true;
             }
 
-            port = null;
+            portData = null;
             return false;
         }
 
@@ -153,14 +153,14 @@ namespace HGraph
         /// </summary>
         /// <param name="memberName">声明端口的成员名。</param>
         /// <returns>已存在或新建的端口实例。</returns>
-        public HPort GetOrCreateStaticPort(string memberName)
+        public HPortData GetOrCreateStaticPort(string memberName)
         {
             if (TryGetStaticPort(memberName, out var port))
             {
                 return port;
             }
 
-            var createdPort = new HPort(GUID);
+            var createdPort = new HPortData(GUID);
             Ports.Add(createdPort);
             _upsertStaticPortBinding(memberName, createdPort.GUID);
             return createdPort;
@@ -216,9 +216,9 @@ namespace HGraph
         /// <summary>
         /// 将 <see cref="GetDynamicPorts"/> 的最新结果同步到 <see cref="Ports"/> 与绑定列表：
         /// <list type="bullet">
-        ///   <item>新增描述符 → 创建 <see cref="HPort"/> 并记录绑定。</item>
-        ///   <item>移除描述符 → 删除对应 <see cref="HPort"/> 与绑定。</item>
-        ///   <item>Key 不变    → 复用原 <see cref="HPort"/>，保持连线稳定。</item>
+        ///   <item>新增描述符 → 创建 <see cref="HPortData"/> 并记录绑定。</item>
+        ///   <item>移除描述符 → 删除对应 <see cref="HPortData"/> 与绑定。</item>
+        ///   <item>Key 不变    → 复用原 <see cref="HPortData"/>，保持连线稳定。</item>
         /// </list>
         /// </summary>
         /// <returns>若端口集合发生变化则返回 <c>true</c>，否则返回 <c>false</c>。</returns>
@@ -258,7 +258,7 @@ namespace HGraph
                     continue;
                 }
 
-                var newPort = new HPort(GUID);
+                var newPort = new HPortData(GUID);
                 Ports.Add(newPort);
                 _dynamicPortBindings.Add(new DynamicPortBinding(descriptor.Key, newPort.GUID));
                 changed = true;
@@ -271,17 +271,17 @@ namespace HGraph
         /// 按业务 Key 查找动态端口。
         /// </summary>
         /// <param name="key">动态端口的业务 Key。</param>
-        /// <param name="port">查找到的端口。</param>
+        /// <param name="portData">查找到的端口。</param>
         /// <returns>是否查找成功。</returns>
-        public bool TryGetDynamicPort(string key, out HPort port)
+        public bool TryGetDynamicPort(string key, out HPortData portData)
         {
             var binding = _dynamicPortBindings.Find(b => string.Equals(b.Key, key, StringComparison.Ordinal));
-            if (binding != null && TryGetPort(binding.PortGuid, out port))
+            if (binding != null && TryGetPort(binding.PortGuid, out portData))
             {
                 return true;
             }
 
-            port = null;
+            portData = null;
             return false;
         }
 
@@ -290,7 +290,7 @@ namespace HGraph
         /// 仅返回已通过 <see cref="RebuildDynamicPorts"/> 完成绑定的端口。
         /// </summary>
         /// <returns>描述符与端口实例的配对集合。</returns>
-        public IEnumerable<(DynamicPortDescriptor Descriptor, HPort Port)> GetDynamicPortsWithData()
+        public IEnumerable<(DynamicPortDescriptor Descriptor, HPortData Port)> GetDynamicPortsWithData()
         {
             foreach (var descriptor in GetDynamicPorts())
             {

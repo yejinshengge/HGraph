@@ -28,12 +28,12 @@ namespace HGraph.Editor
         /// <summary>
         /// 根据节点声明同步静态端口，确保每个端口成员都拥有稳定的端口实例。
         /// </summary>
-        /// <param name="node">目标节点。</param>
-        public static void EnsureStaticPorts(HNode node)
+        /// <param name="nodeData">目标节点。</param>
+        public static void EnsureStaticPorts(HNodeData nodeData)
         {
-            foreach (var member in GetPortMembers(node.GetType()))
+            foreach (var member in GetPortMembers(nodeData.GetType()))
             {
-                node.GetOrCreateStaticPort(member.Name);
+                nodeData.GetOrCreateStaticPort(member.Name);
             }
         }
 

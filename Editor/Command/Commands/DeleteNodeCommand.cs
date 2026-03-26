@@ -13,7 +13,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 待删除的节点对象。
         /// </summary>
-        private readonly HNode _node;
+        private readonly HNodeData _nodeData;
 
         /// <summary>
         /// 删除前节点所在索引。
@@ -25,42 +25,42 @@ namespace HGraph.Editor
         /// </summary>
         private List<LinkRecord> _removedLinks;
 
-        public string Description => $"Delete {_node.GetType().Name}";
+        public string Description => $"Delete {_nodeData.GetType().Name}";
 
         public GraphCommandRefreshMode RefreshMode => GraphCommandRefreshMode.Structure | GraphCommandRefreshMode.Repaint;
 
         /// <summary>
         /// 创建删除节点命令。
         /// </summary>
-        /// <param name="node">目标节点。</param>
-        public DeleteNodeCommand(HNode node)
+        /// <param name="nodeData">目标节点。</param>
+        public DeleteNodeCommand(HNodeData nodeData)
         {
-            _node = node;
+            _nodeData = nodeData;
         }
 
         public bool Execute(GraphCommandContext context)
         {
-            if (_node == null)
+            if (_nodeData == null)
             {
                 return false;
             }
 
-            _nodeIndex = context.Graph.Nodes.IndexOf(_node);
+            _nodeIndex = context.GraphData.Nodes.IndexOf(_nodeData);
             if (_nodeIndex < 0)
             {
                 return false;
             }
 
-            _removedLinks = context.Graph.Links
+            _removedLinks = context.GraphData.Links
                 .Select((link, index) => new LinkRecord(link, index))
-                .Where(record => string.Equals(record.Link.FromNodeId, _node.GUID, StringComparison.Ordinal)
-                                 || string.Equals(record.Link.ToNodeId, _node.GUID, StringComparison.Ordinal))
+                .Where(record => string.Equals(record.LinkData.FromNodeId, _nodeData.GUID, StringComparison.Ordinal)
+                                 || string.Equals(record.LinkData.ToNodeId, _nodeData.GUID, StringComparison.Ordinal))
                 .ToList();
 
-            context.Graph.Nodes.RemoveAt(_nodeIndex);
+            context.GraphData.Nodes.RemoveAt(_nodeIndex);
             foreach (var link in _removedLinks.OrderByDescending(record => record.Index))
             {
-                context.Graph.Links.RemoveAt(link.Index);
+                context.GraphData.Links.RemoveAt(link.Index);
             }
 
             return true;
@@ -68,12 +68,12 @@ namespace HGraph.Editor
 
         public void Undo(GraphCommandContext context)
         {
-            var insertIndex = Mathf.Clamp(_nodeIndex, 0, context.Graph.Nodes.Count);
-            context.Graph.Nodes.Insert(insertIndex, _node);
+            var insertIndex = Mathf.Clamp(_nodeIndex, 0, context.GraphData.Nodes.Count);
+            context.GraphData.Nodes.Insert(insertIndex, _nodeData);
             foreach (var link in _removedLinks.OrderBy(record => record.Index))
             {
-                var linkIndex = Mathf.Clamp(link.Index, 0, context.Graph.Links.Count);
-                context.Graph.Links.Insert(linkIndex, link.Link);
+                var linkIndex = Mathf.Clamp(link.Index, 0, context.GraphData.Links.Count);
+                context.GraphData.Links.Insert(linkIndex, link.LinkData);
             }
         }
     }

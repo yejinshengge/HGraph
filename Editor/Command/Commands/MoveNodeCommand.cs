@@ -10,7 +10,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 被移动的节点对象。
         /// </summary>
-        private readonly HNode _node;
+        private readonly HNodeData _nodeData;
 
         /// <summary>
         /// 移动起点位置。
@@ -22,37 +22,37 @@ namespace HGraph.Editor
         /// </summary>
         private readonly Vector2 _to;
 
-        public string Description => $"Move {_node.GetType().Name}";
+        public string Description => $"Move {_nodeData.GetType().Name}";
 
         public GraphCommandRefreshMode RefreshMode => GraphCommandRefreshMode.NodePositions | GraphCommandRefreshMode.Repaint;
 
         /// <summary>
         /// 创建节点移动命令。
         /// </summary>
-        /// <param name="node">目标节点。</param>
+        /// <param name="nodeData">目标节点。</param>
         /// <param name="from">起点位置。</param>
         /// <param name="to">终点位置。</param>
-        public MoveNodeCommand(HNode node, Vector2 from, Vector2 to)
+        public MoveNodeCommand(HNodeData nodeData, Vector2 from, Vector2 to)
         {
-            _node = node;
+            _nodeData = nodeData;
             _from = from;
             _to = to;
         }
 
         public bool Execute(GraphCommandContext context)
         {
-            if (_node == null || _from == _to)
+            if (_nodeData == null || _from == _to)
             {
                 return false;
             }
 
-            _node.GraphPosition = _to;
+            _nodeData.GraphPosition = _to;
             return true;
         }
 
         public void Undo(GraphCommandContext context)
         {
-            _node.GraphPosition = _from;
+            _nodeData.GraphPosition = _from;
         }
     }
 }

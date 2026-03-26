@@ -8,7 +8,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 被记录的连线对象。
         /// </summary>
-        public HLink Link { get; }
+        public HLinkData LinkData { get; }
 
         /// <summary>
         /// 连线原始索引。
@@ -18,11 +18,11 @@ namespace HGraph.Editor
         /// <summary>
         /// 创建一条连线恢复记录。
         /// </summary>
-        /// <param name="link">连线对象。</param>
+        /// <param name="linkData">连线对象。</param>
         /// <param name="index">原始索引。</param>
-        public LinkRecord(HLink link, int index)
+        public LinkRecord(HLinkData linkData, int index)
         {
-            Link = link;
+            LinkData = linkData;
             Index = index;
         }
     }

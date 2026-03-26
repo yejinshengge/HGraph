@@ -15,7 +15,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 当前绑定的图数据模型。
         /// </summary>
-        private readonly HGraph _graph;
+        private readonly HGraphData _graphData;
 
         /// <summary>
         /// 所属编辑器窗口，用于执行图命令。
@@ -47,11 +47,11 @@ namespace HGraph.Editor
         /// <summary>
         /// 创建图视图并初始化默认交互组件。
         /// </summary>
-        /// <param name="graph">图数据模型。</param>
+        /// <param name="graphData">图数据模型。</param>
         /// <param name="window">所属窗口。</param>
-        public HGraphView(HGraph graph, HGraphWindow window)
+        public HGraphView(HGraphData graphData, HGraphWindow window)
         {
-            _graph = graph;
+            _graphData = graphData;
             _window = window;
 
             styleSheets.Add(Resources.Load<StyleSheet>("GraphBackground"));
@@ -78,7 +78,7 @@ namespace HGraph.Editor
         private void _initSearchWindow()
         {
             _searchWindow = ScriptableObject.CreateInstance<HNodeSearchWindow>();
-            _searchWindow.Init(this, _graph.GetType());
+            _searchWindow.Init(this, _graphData.GetType());
 
             nodeCreationRequest = ctx =>
             {
@@ -94,7 +94,7 @@ namespace HGraph.Editor
         /// </summary>
         private void _createNodes()
         {
-            foreach (var item in _graph.Nodes)
+            foreach (var item in _graphData.Nodes)
             {
                 _createNodeView(item);
             }
@@ -103,16 +103,16 @@ namespace HGraph.Editor
         /// <summary>
         /// 为单个节点创建并注册视图。
         /// </summary>
-        /// <param name="nodeData">节点数据。</param>
+        /// <param name="nodeDataData">节点数据。</param>
         /// <returns>创建完成的节点视图。</returns>
-        private HNodeView _createNodeView(HNode nodeData)
+        private HNodeView _createNodeView(HNodeData nodeDataData)
         {
             var node = new HNodeView(
-                nodeData,
+                nodeDataData,
                 _requestConnectPorts,
                 _requestMoveNode,
                 _requestInspectorChanged);
-            _nodeViewsByGuid[nodeData.GUID] = node;
+            _nodeViewsByGuid[nodeDataData.GUID] = node;
             AddElement(node);
             return node;
         }
@@ -139,7 +139,7 @@ namespace HGraph.Editor
         /// </summary>
         private void _createLinks()
         {
-            foreach (var link in _graph.Links)
+            foreach (var link in _graphData.Links)
             {
                 if (!_tryGetPortView(link.FromNodeId, link.FromPortId, Direction.Output, out var outputPort))
                 {
@@ -282,9 +282,9 @@ namespace HGraph.Editor
         /// <summary>
         /// 将 Edge 视图转换为可持久化的连线数据。
         /// </summary>
-        private bool _tryBuildLink(Edge edge, out HLink link)
+        private bool _tryBuildLink(Edge edge, out HLinkData linkData)
         {
-            link = null;
+            linkData = null;
 
             var outputPort = edge?.output as HPortView;
             var inputPort = edge?.input as HPortView;
@@ -293,7 +293,7 @@ namespace HGraph.Editor
                 return false;
             }
 
-            link = new HLink(outputPort.NodeGuid, inputPort.NodeGuid, outputPort.PortId, inputPort.PortId);
+            linkData = new HLinkData(outputPort.NodeGuid, inputPort.NodeGuid, outputPort.PortId, inputPort.PortId);
             return true;
         }
 
@@ -325,8 +325,8 @@ namespace HGraph.Editor
         /// </summary>
         private void _requestConnectPorts(HPortView outputPort, HPortView inputPort)
         {
-            var newLink = new HLink(outputPort.NodeGuid, inputPort.NodeGuid, outputPort.PortId, inputPort.PortId);
-            if (HGraphCommandHelper.ContainsLink(_graph, newLink))
+            var newLink = new HLinkData(outputPort.NodeGuid, inputPort.NodeGuid, outputPort.PortId, inputPort.PortId);
+            if (HGraphCommandHelper.ContainsLink(_graphData, newLink))
             {
                 return;
             }
@@ -334,20 +334,20 @@ namespace HGraph.Editor
             var conflictingLinks = new List<LinkRecord>();
             if (outputPort.capacity == Port.Capacity.Single)
             {
-                conflictingLinks.AddRange(_graph.Links
+                conflictingLinks.AddRange(_graphData.Links
                     .Select((link, index) => new LinkRecord(link, index))
-                    .Where(item => string.Equals(item.Link.FromPortId, outputPort.PortId, StringComparison.Ordinal)));
+                    .Where(item => string.Equals(item.LinkData.FromPortId, outputPort.PortId, StringComparison.Ordinal)));
             }
 
             if (inputPort.capacity == Port.Capacity.Single)
             {
-                conflictingLinks.AddRange(_graph.Links
+                conflictingLinks.AddRange(_graphData.Links
                     .Select((link, index) => new LinkRecord(link, index))
-                    .Where(item => string.Equals(item.Link.ToPortId, inputPort.PortId, StringComparison.Ordinal)));
+                    .Where(item => string.Equals(item.LinkData.ToPortId, inputPort.PortId, StringComparison.Ordinal)));
             }
 
             var distinctConflicts = conflictingLinks
-                .GroupBy(item => item.Link, ReferenceEqualityComparer<HLink>.Instance)
+                .GroupBy(item => item.LinkData, ReferenceEqualityComparer<HLinkData>.Instance)
                 .Select(group => group.First())
                 .ToList();
 
@@ -364,17 +364,17 @@ namespace HGraph.Editor
         /// <summary>
         /// 提交节点移动命令。
         /// </summary>
-        private void _requestMoveNode(HNode node, Vector2 from, Vector2 to)
+        private void _requestMoveNode(HNodeData nodeData, Vector2 from, Vector2 to)
         {
-            _window.ExecuteGraphCommand(new MoveNodeCommand(node, from, to));
+            _window.ExecuteGraphCommand(new MoveNodeCommand(nodeData, from, to));
         }
 
         /// <summary>
         /// 提交节点 Inspector 状态变更命令。
         /// </summary>
-        private void _requestInspectorChanged(HNode node, HNode beforeState, HNode afterState)
+        private void _requestInspectorChanged(HNodeData nodeData, HNodeData beforeState, HNodeData afterState)
         {
-            _window.ExecuteGraphCommand(new EditNodeStateCommand(node, beforeState, afterState));
+            _window.ExecuteGraphCommand(new EditNodeStateCommand(nodeData, beforeState, afterState));
         }
 
         /// <summary>
@@ -405,12 +405,12 @@ namespace HGraph.Editor
             var selectedNodeViews = selection
                 .OfType<HNodeView>()
                 .Distinct()
-                .OrderByDescending(nodeView => _graph.Nodes.IndexOf(nodeView.NodeData))
+                .OrderByDescending(nodeView => _graphData.Nodes.IndexOf(nodeView.NodeDataData))
                 .ToList();
 
-            var selectedNodeIds = new HashSet<string>(selectedNodeViews.Select(nodeView => nodeView.NodeData.GUID));
+            var selectedNodeIds = new HashSet<string>(selectedNodeViews.Select(nodeView => nodeView.NodeDataData.GUID));
             var commands = new List<IGraphCommand>();
-            commands.AddRange(selectedNodeViews.Select(nodeView => new DeleteNodeCommand(nodeView.NodeData)));
+            commands.AddRange(selectedNodeViews.Select(nodeView => new DeleteNodeCommand(nodeView.NodeDataData)));
 
             foreach (var edge in selection.OfType<Edge>())
             {
@@ -440,7 +440,7 @@ namespace HGraph.Editor
         /// </summary>
         private void _removeMissingNodeViews()
         {
-            var validNodeIds = new HashSet<string>(_graph.Nodes.Select(node => node.GUID));
+            var validNodeIds = new HashSet<string>(_graphData.Nodes.Select(node => node.GUID));
             var staleNodeIds = _nodeViewsByGuid.Keys
                 .Where(nodeId => !validNodeIds.Contains(nodeId))
                 .ToList();
@@ -458,7 +458,7 @@ namespace HGraph.Editor
         /// </summary>
         private void _createMissingNodeViews()
         {
-            foreach (var node in _graph.Nodes)
+            foreach (var node in _graphData.Nodes)
             {
                 if (_nodeViewsByGuid.ContainsKey(node.GUID))
                 {

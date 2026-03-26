@@ -8,7 +8,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 待创建的连线对象。
         /// </summary>
-        private readonly HLink _link;
+        private readonly HLinkData _linkData;
 
         public string Description => "Create Link";
 
@@ -17,26 +17,26 @@ namespace HGraph.Editor
         /// <summary>
         /// 创建连线命令。
         /// </summary>
-        /// <param name="link">目标连线。</param>
-        public CreateLinkCommand(HLink link)
+        /// <param name="linkData">目标连线。</param>
+        public CreateLinkCommand(HLinkData linkData)
         {
-            _link = link;
+            _linkData = linkData;
         }
 
         public bool Execute(GraphCommandContext context)
         {
-            if (_link == null || HGraphCommandHelper.ContainsLink(context.Graph, _link))
+            if (_linkData == null || HGraphCommandHelper.ContainsLink(context.GraphData, _linkData))
             {
                 return false;
             }
 
-            context.Graph.Links.Add(_link);
+            context.GraphData.Links.Add(_linkData);
             return true;
         }
 
         public void Undo(GraphCommandContext context)
         {
-            HGraphCommandHelper.RemoveLink(context.Graph, _link);
+            HGraphCommandHelper.RemoveLink(context.GraphData, _linkData);
         }
     }
 }

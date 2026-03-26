@@ -10,14 +10,14 @@ namespace HGraph.Editor
         /// <summary>
         /// 查找目标连线在图中的索引。
         /// </summary>
-        /// <param name="graph">目标图。</param>
+        /// <param name="graphData">目标图。</param>
         /// <param name="target">待查找连线。</param>
         /// <returns>索引；不存在时返回 -1。</returns>
-        public static int FindLinkIndex(HGraph graph, HLink target)
+        public static int FindLinkIndex(HGraphData graphData, HLinkData target)
         {
-            for (var i = 0; i < graph.Links.Count; i++)
+            for (var i = 0; i < graphData.Links.Count; i++)
             {
-                if (AreSameLink(graph.Links[i], target))
+                if (AreSameLink(graphData.Links[i], target))
                 {
                     return i;
                 }
@@ -29,25 +29,25 @@ namespace HGraph.Editor
         /// <summary>
         /// 判断图中是否已存在等价连线。
         /// </summary>
-        /// <param name="graph">目标图。</param>
+        /// <param name="graphData">目标图。</param>
         /// <param name="target">待判断连线。</param>
         /// <returns>是否存在。</returns>
-        public static bool ContainsLink(HGraph graph, HLink target)
+        public static bool ContainsLink(HGraphData graphData, HLinkData target)
         {
-            return FindLinkIndex(graph, target) >= 0;
+            return FindLinkIndex(graphData, target) >= 0;
         }
 
         /// <summary>
         /// 从图中移除目标连线。
         /// </summary>
-        /// <param name="graph">目标图。</param>
+        /// <param name="graphData">目标图。</param>
         /// <param name="target">待删除连线。</param>
-        public static void RemoveLink(HGraph graph, HLink target)
+        public static void RemoveLink(HGraphData graphData, HLinkData target)
         {
-            var index = FindLinkIndex(graph, target);
+            var index = FindLinkIndex(graphData, target);
             if (index >= 0)
             {
-                graph.Links.RemoveAt(index);
+                graphData.Links.RemoveAt(index);
             }
         }
 
@@ -57,7 +57,7 @@ namespace HGraph.Editor
         /// <param name="left">左侧连线。</param>
         /// <param name="right">右侧连线。</param>
         /// <returns>是否等价。</returns>
-        public static bool AreSameLink(HLink left, HLink right)
+        public static bool AreSameLink(HLinkData left, HLinkData right)
         {
             if (left == null || right == null)
             {

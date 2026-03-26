@@ -57,10 +57,10 @@ namespace HGraph.Editor
         /// <summary>
         /// 为指定图对象创建命令服务。
         /// </summary>
-        /// <param name="graph">目标图对象。</param>
-        public GraphCommandService(HGraph graph)
+        /// <param name="graphData">目标图对象。</param>
+        public GraphCommandService(HGraphData graphData)
         {
-            _context = new GraphCommandContext(graph);
+            _context = new GraphCommandContext(graphData);
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 切换到另一张图时重置命令历史。
         /// </summary>
-        public void Reset(HGraph graph)
+        public void Reset(HGraphData graphData)
         {
             if (IsExecuting)
             {
@@ -166,7 +166,7 @@ namespace HGraph.Editor
             _history.Clear();
             _cursor = 0;
             _saveCursor = 0;
-            _raiseStateChanged(GraphCommandChangeType.Reset, null, graph);
+            _raiseStateChanged(GraphCommandChangeType.Reset, null, graphData);
         }
 
         /// <summary>
@@ -181,12 +181,12 @@ namespace HGraph.Editor
         /// <summary>
         /// 将命令历史变化广播给窗口层，由窗口决定如何刷新视图与更新脏状态。
         /// </summary>
-        private void _raiseStateChanged(GraphCommandChangeType changeType, IGraphCommand command, HGraph graphOverride = null)
+        private void _raiseStateChanged(GraphCommandChangeType changeType, IGraphCommand command, HGraphData graphDataOverride = null)
         {
             StateChanged?.Invoke(new GraphCommandEvent(
                 changeType,
                 command,
-                graphOverride ?? _context.Graph,
+                graphDataOverride ?? _context.GraphData,
                 command?.RefreshMode ?? GraphCommandRefreshMode.Repaint,
                 CanUndo,
                 CanRedo,
@@ -243,7 +243,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 当前关联的图对象。
         /// </summary>
-        public HGraph Graph { get; }
+        public HGraphData GraphData { get; }
 
         /// <summary>
         /// 推荐窗口执行的刷新模式。
@@ -270,7 +270,7 @@ namespace HGraph.Editor
         /// </summary>
         /// <param name="changeType">变化类型。</param>
         /// <param name="command">关联命令。</param>
-        /// <param name="graph">关联图对象。</param>
+        /// <param name="graphData">关联图对象。</param>
         /// <param name="refreshMode">建议刷新模式。</param>
         /// <param name="canUndo">是否可撤销。</param>
         /// <param name="canRedo">是否可重做。</param>
@@ -278,7 +278,7 @@ namespace HGraph.Editor
         public GraphCommandEvent(
             GraphCommandChangeType changeType,
             IGraphCommand command,
-            HGraph graph,
+            HGraphData graphData,
             GraphCommandRefreshMode refreshMode,
             bool canUndo,
             bool canRedo,
@@ -286,7 +286,7 @@ namespace HGraph.Editor
         {
             ChangeType = changeType;
             Command = command;
-            Graph = graph;
+            GraphData = graphData;
             RefreshMode = refreshMode;
             CanUndo = canUndo;
             CanRedo = canRedo;

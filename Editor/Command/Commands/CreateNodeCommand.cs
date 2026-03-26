@@ -21,7 +21,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 缓存的节点实例，供 redo 时复用。
         /// </summary>
-        private HNode _node;
+        private HNodeData _nodeData;
 
         /// <summary>
         /// 节点插入索引，便于撤销后恢复原顺序。
@@ -45,29 +45,29 @@ namespace HGraph.Editor
 
         public bool Execute(GraphCommandContext context)
         {
-            if (_node == null)
+            if (_nodeData == null)
             {
-                _node = (HNode)Activator.CreateInstance(_nodeType);
-                _node.GraphPosition = _position;
-                HGraphNodePortUtility.EnsureStaticPorts(_node);
+                _nodeData = (HNodeData)Activator.CreateInstance(_nodeType);
+                _nodeData.GraphPosition = _position;
+                HGraphNodePortUtility.EnsureStaticPorts(_nodeData);
                 // 初始化动态端口，使节点一创建就拥有正确的端口实例
-                _node.RebuildDynamicPorts();
+                _nodeData.RebuildDynamicPorts();
             }
 
-            _insertIndex = Mathf.Clamp(_insertIndex < 0 ? context.Graph.Nodes.Count : _insertIndex, 0, context.Graph.Nodes.Count);
-            if (context.Graph.Nodes.Contains(_node))
+            _insertIndex = Mathf.Clamp(_insertIndex < 0 ? context.GraphData.Nodes.Count : _insertIndex, 0, context.GraphData.Nodes.Count);
+            if (context.GraphData.Nodes.Contains(_nodeData))
             {
                 return false;
             }
 
-            context.Graph.Nodes.Insert(_insertIndex, _node);
+            context.GraphData.Nodes.Insert(_insertIndex, _nodeData);
             return true;
         }
 
         public void Undo(GraphCommandContext context)
         {
-            _insertIndex = context.Graph.Nodes.IndexOf(_node);
-            context.Graph.Nodes.Remove(_node);
+            _insertIndex = context.GraphData.Nodes.IndexOf(_nodeData);
+            context.GraphData.Nodes.Remove(_nodeData);
         }
     }
 }

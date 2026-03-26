@@ -10,7 +10,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 待删除的连线对象。
         /// </summary>
-        private readonly HLink _link;
+        private readonly HLinkData _linkData;
 
         /// <summary>
         /// 删除前连线所在索引。
@@ -24,33 +24,33 @@ namespace HGraph.Editor
         /// <summary>
         /// 创建删除连线命令。
         /// </summary>
-        /// <param name="link">目标连线。</param>
-        public DeleteLinkCommand(HLink link)
+        /// <param name="linkData">目标连线。</param>
+        public DeleteLinkCommand(HLinkData linkData)
         {
-            _link = link;
+            _linkData = linkData;
         }
 
         public bool Execute(GraphCommandContext context)
         {
-            if (_link == null)
+            if (_linkData == null)
             {
                 return false;
             }
 
-            _removedIndex = HGraphCommandHelper.FindLinkIndex(context.Graph, _link);
+            _removedIndex = HGraphCommandHelper.FindLinkIndex(context.GraphData, _linkData);
             if (_removedIndex < 0)
             {
                 return false;
             }
 
-            context.Graph.Links.RemoveAt(_removedIndex);
+            context.GraphData.Links.RemoveAt(_removedIndex);
             return true;
         }
 
         public void Undo(GraphCommandContext context)
         {
-            var insertIndex = Mathf.Clamp(_removedIndex, 0, context.Graph.Links.Count);
-            context.Graph.Links.Insert(insertIndex, _link);
+            var insertIndex = Mathf.Clamp(_removedIndex, 0, context.GraphData.Links.Count);
+            context.GraphData.Links.Insert(insertIndex, _linkData);
         }
     }
 }

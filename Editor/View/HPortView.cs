@@ -36,17 +36,17 @@ namespace HGraph.Editor
         /// <summary>
         /// 端口绑定的数据对象。
         /// </summary>
-        public HPort PortData { get; }
+        public HPortData PortDataData { get; }
 
         /// <summary>
         /// 端口所属节点 ID。
         /// </summary>
-        public string NodeGuid => PortData.NodeGUID;
+        public string NodeGuid => PortDataData.NodeGUID;
 
         /// <summary>
         /// 用于持久化连线的稳定端口 ID。
         /// </summary>
-        public string PortId => PortData.GUID;
+        public string PortId => PortDataData.GUID;
 
         /// <summary>
         /// 端口特性元数据（包含连接容量等配置）。
@@ -62,7 +62,7 @@ namespace HGraph.Editor
         /// 初始化端口视图实例。
         /// </summary>
         /// <param name="memberName">成员名。</param>
-        /// <param name="portData">端口数据。</param>
+        /// <param name="portDataData">端口数据。</param>
         /// <param name="portAttribute">端口配置特性。</param>
         /// <param name="orientation">端口朝向。</param>
         /// <param name="direction">端口方向（输入/输出）。</param>
@@ -70,7 +70,7 @@ namespace HGraph.Editor
         /// <param name="type">端口值类型。</param>
         private HPortView(
             string memberName,
-            HPort portData,
+            HPortData portDataData,
             HGraphPortAttribute portAttribute,
             Orientation orientation,
             Direction direction,
@@ -80,7 +80,7 @@ namespace HGraph.Editor
             : base(orientation, direction, capacity, type)
         {
             MemberName = memberName;
-            PortData = portData;
+            PortDataData = portDataData;
             PortAttribute = portAttribute;
             _onConnectRequested = onConnectRequested;
             portName = $"{ObjectNames.NicifyVariableName(memberName)}";
@@ -102,14 +102,14 @@ namespace HGraph.Editor
         /// <summary>
         /// 根据成员信息与端口配置创建静态端口视图。
         /// </summary>
-        /// <param name="portData">端口数据。</param>
+        /// <param name="portDataData">端口数据。</param>
         /// <param name="member">声明端口的成员。</param>
         /// <param name="portAttribute">端口特性配置。</param>
         /// <param name="direction">端口方向。</param>
         /// <param name="onConnectRequested">连接成功后的回调。</param>
         /// <returns>创建完成的端口视图。</returns>
         public static HPortView Create(
-            HPort portData,
+            HPortData portDataData,
             MemberInfo member,
             HGraphPortAttribute portAttribute,
             Direction direction,
@@ -120,7 +120,7 @@ namespace HGraph.Editor
 
             return new HPortView(
                 member.Name,
-                portData,
+                portDataData,
                 portAttribute,
                 Orientation.Horizontal,
                 direction,
@@ -134,13 +134,13 @@ namespace HGraph.Editor
         /// 动态端口使用描述符的 <see cref="DynamicPortDescriptor.Label"/> 作为显示名，
         /// 而非通过反射成员名推断。
         /// </summary>
-        /// <param name="portData">端口数据。</param>
+        /// <param name="portDataData">端口数据。</param>
         /// <param name="descriptor">动态端口描述符。</param>
         /// <param name="direction">端口方向。</param>
         /// <param name="onConnectRequested">连接成功后的回调。</param>
         /// <returns>创建完成的端口视图。</returns>
         public static HPortView CreateDynamic(
-            HPort portData,
+            HPortData portDataData,
             DynamicPortDescriptor descriptor,
             Direction direction,
             Action<HPortView, HPortView> onConnectRequested)
@@ -151,7 +151,7 @@ namespace HGraph.Editor
             // 动态端口以描述符的 Key 作为内部 memberName，Label 作为显示名
             var portView = new HPortView(
                 descriptor.Key,
-                portData,
+                portDataData,
                 portAttribute: null,
                 Orientation.Horizontal,
                 direction,

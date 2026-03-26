@@ -3,7 +3,7 @@ namespace HGraph
     /// <summary>
     /// 图中的一条有向连线，完全通过节点与端口 GUID 描述连接关系。
     /// </summary>
-    public class HLink
+    public class HLinkData
     {
         /// <summary>
         /// 输出端所在节点的 GUID。
@@ -36,7 +36,7 @@ namespace HGraph
         /// <param name="toNodeId">输入端所在节点 GUID。</param>
         /// <param name="fromPortId">输出端口 GUID。</param>
         /// <param name="toPortId">输入端口 GUID。</param>
-        public HLink(string fromNodeId, string toNodeId, string fromPortId, string toPortId)
+        public HLinkData(string fromNodeId, string toNodeId, string fromPortId, string toPortId)
         {
             _fromNodeId = fromNodeId;
             _toNodeId = toNodeId;

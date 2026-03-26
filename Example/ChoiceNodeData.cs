@@ -8,8 +8,8 @@ namespace HGraph.Example
     /// 每个 <see cref="ChoiceOption"/> 对应一个输出端口；
     /// 在 Inspector 中增删选项后，端口会自动同步增减，且已有连线不受影响。
     /// </summary>
-    [HGraphNode(NodeOf = typeof(DialogueGraph))]
-    public class ChoiceNode : HNode
+    [HGraphNode(NodeOf = typeof(DialogueGraphData))]
+    public class ChoiceNodeData : HNodeData
     {
         /// <summary>
         /// 节点输入端口，接收来自上一个对话节点的流。

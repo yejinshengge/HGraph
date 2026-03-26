@@ -3,8 +3,8 @@ namespace HGraph.Example
     /// <summary>
     /// 对话节点示例，展示普通字段与输入输出端口的组合写法。
     /// </summary>
-    [HGraphNode(NodeOf = typeof(DialogueGraph))]
-    public class DialogueNode : HNode
+    [HGraphNode(NodeOf = typeof(DialogueGraphData))]
+    public class DialogueNodeData : HNodeData
     {
         /// <summary>
         /// 当前节点要展示的对话文本。

@@ -22,7 +22,7 @@ namespace HGraph.Editor
                     try { return assembly.GetTypes(); }
                     catch { return Type.EmptyTypes; }
                 })
-                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(HGraph)))
+                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(HGraphData)))
                 .OrderBy(t => t.Name)
                 .ToList();
         }
@@ -43,7 +43,7 @@ namespace HGraph.Editor
                 })
                 .Where(t =>
                 {
-                    if (!t.IsClass || t.IsAbstract || !t.IsSubclassOf(typeof(HNode))) return false;
+                    if (!t.IsClass || t.IsAbstract || !t.IsSubclassOf(typeof(HNodeData))) return false;
                     var attrs = t.GetCustomAttributes(typeof(HGraphNodeAttribute), false);
                     if (attrs.Length == 0) return false;
                     return ((HGraphNodeAttribute)attrs[0]).NodeOf == graphType;
@@ -57,11 +57,11 @@ namespace HGraph.Editor
         /// 当前仅保留统一入口，后续会委托给持久化实现。
         /// </summary>
         /// <param name="path">目标路径。</param>
-        /// <param name="graph">待保存的图对象。</param>
-        public static void SaveGraph(string path, HGraph graph)
+        /// <param name="graphData">待保存的图对象。</param>
+        public static void SaveGraph(string path, HGraphData graphData)
         {
-            Debug.Log($"[HGraph] 保存图到: {path} (类型: {graph.GetType().Name})");
-            HGraphPersistenceRegistry.Current.Save(path, graph, isEditor: true);
+            Debug.Log($"[HGraph] 保存图到: {path} (类型: {graphData.GetType().Name})");
+            HGraphPersistenceRegistry.Current.Save(path, graphData, isEditor: true);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace HGraph.Editor
         /// </summary>
         /// <param name="path">资源路径。</param>
         /// <returns>加载得到的图对象；当前未实现时返回 null。</returns>
-        public static HGraph LoadGraph(string path)
+        public static HGraphData LoadGraph(string path)
         {
             Debug.Log($"[HGraph] 从文件加载图: {path}");
             var graph = HGraphPersistenceRegistry.Current.Load(path);

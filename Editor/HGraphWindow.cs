@@ -33,7 +33,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 当前正在编辑的图对象。
         /// </summary>
-        [NonSerialized, OdinSerialize, HideInInspector] private HGraph _currentGraph;
+        [NonSerialized, OdinSerialize, HideInInspector] private HGraphData _currentGraphData;
 
         /// <summary>
         /// 当前窗口是否存在未保存修改。
@@ -68,7 +68,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 当前窗口是否已加载图对象。
         /// </summary>
-        private bool HasGraph => _currentGraph != null;
+        private bool HasGraph => _currentGraphData != null;
 
         // ============ Odin Inspector ============
 
@@ -83,7 +83,7 @@ namespace HGraph.Editor
         /// <summary>
         /// Inspector 中展示的图类型名。
         /// </summary>
-        private string CurrentGraphTypeName => _currentGraph?.GetType().Name ?? "无";
+        private string CurrentGraphTypeName => _currentGraphData?.GetType().Name ?? "无";
 
         // ============ 生命周期 ============
 
@@ -94,7 +94,7 @@ namespace HGraph.Editor
         {
             base.OnEnable();
             Selection.selectionChanged += OnSelectionChanged;
-            if (_currentGraph != null)
+            if (_currentGraphData != null)
             {
                 _createCommandService();
                 InitGraphView();
@@ -185,7 +185,7 @@ namespace HGraph.Editor
         /// </summary>
         private void LayoutGraphView()
         {
-            if (_currentGraph != null && (_graphView == null || _graphView.parent == null))
+            if (_currentGraphData != null && (_graphView == null || _graphView.parent == null))
                 InitGraphView();
 
             var rect = GUILayoutUtility.GetRect(0, 0, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
@@ -233,7 +233,7 @@ namespace HGraph.Editor
         /// </summary>
         private void Save()
         {
-            if (_currentGraph == null) return;
+            if (_currentGraphData == null) return;
 
             if (string.IsNullOrEmpty(_currentFilePath))
             {
@@ -250,7 +250,7 @@ namespace HGraph.Editor
         /// </summary>
         private void SaveAs()
         {
-            if (_currentGraph == null) return;
+            if (_currentGraphData == null) return;
 
             var path = ChooseSavePath();
             if (path == null) return;
@@ -293,7 +293,7 @@ namespace HGraph.Editor
 
             try
             {
-                _currentGraph = (HGraph)Activator.CreateInstance(graphType);
+                _currentGraphData = (HGraphData)Activator.CreateInstance(graphType);
                 _currentFilePath = null;
                 _isDirty = true;
                 _createCommandService();
@@ -315,9 +315,9 @@ namespace HGraph.Editor
         private void InitGraphView()
         {
             RemoveGraphView();
-            if (_currentGraph == null) return;
+            if (_currentGraphData == null) return;
 
-            _graphView = new HGraphView(_currentGraph, this);
+            _graphView = new HGraphView(_currentGraphData, this);
             _graphView.style.position = Position.Absolute;
             rootVisualElement.Add(_graphView);
             _graphViewNeedsBringToFront = true;
@@ -386,7 +386,7 @@ namespace HGraph.Editor
             var graph = HGraphEditorUtility.LoadGraph(assetPath);
             if (graph != null)
             {
-                _currentGraph = graph;
+                _currentGraphData = graph;
                 _currentFilePath = assetPath;
                 _isDirty = false;
                 _createCommandService();
@@ -405,7 +405,7 @@ namespace HGraph.Editor
         /// </summary>
         private void CommitSave()
         {
-            HGraphEditorUtility.SaveGraph(_currentFilePath, _currentGraph);
+            HGraphEditorUtility.SaveGraph(_currentFilePath, _currentGraphData);
             _commandService?.MarkSaved();
             _isDirty = false;
             UpdateTitle();
@@ -439,13 +439,13 @@ namespace HGraph.Editor
         private void _createCommandService()
         {
             _unsubscribeCommandService();
-            if (_currentGraph == null)
+            if (_currentGraphData == null)
             {
                 _commandService = null;
                 return;
             }
 
-            _commandService = new GraphCommandService(_currentGraph);
+            _commandService = new GraphCommandService(_currentGraphData);
             _commandService.StateChanged += _onCommandStateChanged;
         }
 
@@ -585,7 +585,7 @@ namespace HGraph.Editor
         /// <returns>是否允许继续后续操作。</returns>
         private bool ConfirmDiscardChanges()
         {
-            if (!_isDirty || _currentGraph == null) return true;
+            if (!_isDirty || _currentGraphData == null) return true;
 
             // 0 = 保存, 1 = 取消, 2 = 不保存
             var choice = EditorUtility.DisplayDialogComplex(

@@ -12,7 +12,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 替换后要写入的新连线。
         /// </summary>
-        private readonly HLink _newLink;
+        private readonly HLinkData _newLinkData;
 
         /// <summary>
         /// 被替换掉的旧连线集合。
@@ -26,33 +26,33 @@ namespace HGraph.Editor
         /// <summary>
         /// 创建替换连线命令。
         /// </summary>
-        /// <param name="newLink">新连线。</param>
+        /// <param name="newLinkData">新连线。</param>
         /// <param name="replacedLinks">需要移除并可恢复的旧连线。</param>
-        public ReplaceLinkCommand(HLink newLink, IEnumerable<LinkRecord> replacedLinks)
+        public ReplaceLinkCommand(HLinkData newLinkData, IEnumerable<LinkRecord> replacedLinks)
         {
-            _newLink = newLink;
+            _newLinkData = newLinkData;
             _replacedLinks = replacedLinks?.ToList() ?? new List<LinkRecord>();
         }
 
         public bool Execute(GraphCommandContext context)
         {
-            if (_newLink == null)
+            if (_newLinkData == null)
             {
                 return false;
             }
 
             foreach (var link in _replacedLinks.OrderByDescending(item => item.Index))
             {
-                var index = HGraphCommandHelper.FindLinkIndex(context.Graph, link.Link);
+                var index = HGraphCommandHelper.FindLinkIndex(context.GraphData, link.LinkData);
                 if (index >= 0)
                 {
-                    context.Graph.Links.RemoveAt(index);
+                    context.GraphData.Links.RemoveAt(index);
                 }
             }
 
-            if (!HGraphCommandHelper.ContainsLink(context.Graph, _newLink))
+            if (!HGraphCommandHelper.ContainsLink(context.GraphData, _newLinkData))
             {
-                context.Graph.Links.Add(_newLink);
+                context.GraphData.Links.Add(_newLinkData);
                 return true;
             }
 
@@ -61,13 +61,13 @@ namespace HGraph.Editor
 
         public void Undo(GraphCommandContext context)
         {
-            HGraphCommandHelper.RemoveLink(context.Graph, _newLink);
+            HGraphCommandHelper.RemoveLink(context.GraphData, _newLinkData);
             foreach (var link in _replacedLinks.OrderBy(item => item.Index))
             {
-                var insertIndex = Mathf.Clamp(link.Index, 0, context.Graph.Links.Count);
-                if (!HGraphCommandHelper.ContainsLink(context.Graph, link.Link))
+                var insertIndex = Mathf.Clamp(link.Index, 0, context.GraphData.Links.Count);
+                if (!HGraphCommandHelper.ContainsLink(context.GraphData, link.LinkData))
                 {
-                    context.Graph.Links.Insert(insertIndex, link.Link);
+                    context.GraphData.Links.Insert(insertIndex, link.LinkData);
                 }
             }
         }

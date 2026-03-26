@@ -18,7 +18,7 @@ namespace HGraph.Editor
         /// <summary>
         /// 当前节点绑定的数据对象。
         /// </summary>
-        public HNode NodeData { get; private set; }
+        public HNodeData NodeDataData { get; private set; }
 
         /// <summary>
         /// Odin 属性树，用于绘制节点扩展面板中的字段。
@@ -54,9 +54,9 @@ namespace HGraph.Editor
 
         private readonly Action<HPortView, HPortView> _onConnectRequested;
 
-        private readonly Action<HNode, Vector2, Vector2> _onMoveRequested;
+        private readonly Action<HNodeData, Vector2, Vector2> _onMoveRequested;
 
-        private readonly Action<HNode, HNode, HNode> _onInspectorChanged;
+        private readonly Action<HNodeData, HNodeData, HNodeData> _onInspectorChanged;
 
         /// <summary>
         /// 上一帧动态端口描述符的签名缓存，用于检测 Odin 列表结构性变更。
@@ -76,22 +76,22 @@ namespace HGraph.Editor
         /// <summary>
         /// 构建一个节点视图并初始化端口与 Inspector。
         /// </summary>
-        /// <param name="nodeData">节点数据。</param>
+        /// <param name="nodeDataData">节点数据。</param>
         public HNodeView(
-            HNode nodeData,
+            HNodeData nodeDataData,
             Action<HPortView, HPortView> onConnectRequested,
-            Action<HNode, Vector2, Vector2> onMoveRequested,
-            Action<HNode, HNode, HNode> onInspectorChanged)
+            Action<HNodeData, Vector2, Vector2> onMoveRequested,
+            Action<HNodeData, HNodeData, HNodeData> onInspectorChanged)
         {
-            NodeData = nodeData;
+            NodeDataData = nodeDataData;
             _onConnectRequested = onConnectRequested;
             _onMoveRequested = onMoveRequested;
             _onInspectorChanged = onInspectorChanged;
-            title = nodeData.GetType().Name;
-            _applyPositionWithoutNotify(nodeData.GraphPosition);
+            title = nodeDataData.GetType().Name;
+            _applyPositionWithoutNotify(nodeDataData.GraphPosition);
 
             style.minWidth = 200;
-            _lastDynamicPortSignature = nodeData.ComputeDynamicPortSignature();
+            _lastDynamicPortSignature = nodeDataData.ComputeDynamicPortSignature();
             _setupPorts();
             _setupInspector();
             RegisterCallback<MouseDownEvent>(_onMouseDown);
@@ -103,13 +103,13 @@ namespace HGraph.Editor
         /// </summary>
         private void _setupPorts()
         {
-            foreach (var member in HGraphNodePortUtility.GetPortMembers(NodeData.GetType()))
+            foreach (var member in HGraphNodePortUtility.GetPortMembers(NodeDataData.GetType()))
             {
                 var input = member.GetCustomAttribute<InputAttribute>(true);
                 if (input != null)
                 {
                     _portMemberNames.Add(member.Name);
-                    if (NodeData.TryGetStaticPort(member.Name, out var inputPortData))
+                    if (NodeDataData.TryGetStaticPort(member.Name, out var inputPortData))
                     {
                         var inputPort = HPortView.Create(inputPortData, member, input, UnityEditor.Experimental.GraphView.Direction.Input, _onConnectRequested);
                         _inputPorts[inputPort.PortId] = inputPort;
@@ -121,7 +121,7 @@ namespace HGraph.Editor
                 if (output != null)
                 {
                     _portMemberNames.Add(member.Name);
-                    if (NodeData.TryGetStaticPort(member.Name, out var outputPortData))
+                    if (NodeDataData.TryGetStaticPort(member.Name, out var outputPortData))
                     {
                         var outputPort = HPortView.Create(outputPortData, member, output, UnityEditor.Experimental.GraphView.Direction.Output, _onConnectRequested);
                         _outputPorts[outputPort.PortId] = outputPort;
@@ -139,7 +139,7 @@ namespace HGraph.Editor
         /// </summary>
         private void _setupDynamicPorts()
         {
-            foreach (var (descriptor, portData) in NodeData.GetDynamicPortsWithData())
+            foreach (var (descriptor, portData) in NodeDataData.GetDynamicPortsWithData())
             {
                 var direction = descriptor.Direction == PortDirection.Input
                     ? UnityEditor.Experimental.GraphView.Direction.Input
@@ -166,7 +166,7 @@ namespace HGraph.Editor
         /// 重建动态端口视图：
         /// <list type="number">
         ///   <item>从容器与索引中移除旧动态端口视图；</item>
-        ///   <item>调用 <see cref="HNode.RebuildDynamicPorts"/> 同步数据层；</item>
+        ///   <item>调用 <see cref="HNodeData.RebuildDynamicPorts"/> 同步数据层；</item>
         ///   <item>依据最新数据重建视图并注册到端口索引；</item>
         ///   <item>通知 GraphView 刷新端口布局。</item>
         /// </list>
@@ -190,7 +190,7 @@ namespace HGraph.Editor
             _dynamicOutputPortViews.Clear();
 
             // 同步数据层（已在 EditNodeStateCommand 中调用过，此处再次调用保证幂等）
-            NodeData.RebuildDynamicPorts();
+            NodeDataData.RebuildDynamicPorts();
 
             // 重建视图
             _setupDynamicPorts();
@@ -202,7 +202,7 @@ namespace HGraph.Editor
         /// </summary>
         private void _setupInspector()
         {
-            _propertyTree = PropertyTree.Create(NodeData);
+            _propertyTree = PropertyTree.Create(NodeDataData);
 
             var inspectorContainer = new IMGUIContainer(() =>
             {
@@ -237,7 +237,7 @@ namespace HGraph.Editor
 
             // Inspector 编辑使用“前后快照”生成命令，
             // 这样不用为每个字段手写撤销逻辑，也能兼容未来的节点子类。
-            var beforeSnapshot = GraphCommandSnapshotUtility.CreateCopy(NodeData);
+            var beforeSnapshot = GraphCommandSnapshotUtility.CreateCopy(NodeDataData);
             EditorGUI.BeginChangeCheck();
             _propertyTree.BeginDraw(false);
             for (var i = 0; i < _propertyTree.RootPropertyCount; i++)
@@ -260,16 +260,16 @@ namespace HGraph.Editor
             // 通过动态端口签名变化来补充检测。
             if (!changed)
             {
-                changed = NodeData.ComputeDynamicPortSignature() != _lastDynamicPortSignature;
+                changed = NodeDataData.ComputeDynamicPortSignature() != _lastDynamicPortSignature;
             }
 
             if (changed)
             {
-                _lastDynamicPortSignature = NodeData.ComputeDynamicPortSignature();
-                var afterSnapshot = GraphCommandSnapshotUtility.CreateCopy(NodeData);
+                _lastDynamicPortSignature = NodeDataData.ComputeDynamicPortSignature();
+                var afterSnapshot = GraphCommandSnapshotUtility.CreateCopy(NodeDataData);
                 if (!GraphCommandSnapshotUtility.AreEquivalent(beforeSnapshot, afterSnapshot))
                 {
-                    _onInspectorChanged?.Invoke(NodeData, beforeSnapshot, afterSnapshot);
+                    _onInspectorChanged?.Invoke(NodeDataData, beforeSnapshot, afterSnapshot);
                 }
             }
         }
@@ -289,7 +289,7 @@ namespace HGraph.Editor
             base.SetPosition(newPos);
 
             // 拖拽过程中实时把视图位置写回模型，避免后续刷新把节点“弹回旧位置”。
-            NodeData.GraphPosition = newPos.position;
+            NodeDataData.GraphPosition = newPos.position;
         }
 
         /// <summary>
@@ -297,12 +297,12 @@ namespace HGraph.Editor
         /// </summary>
         public void RefreshPositionFromModel()
         {
-            if ((GetPosition().position - NodeData.GraphPosition).sqrMagnitude < 0.0001f)
+            if ((GetPosition().position - NodeDataData.GraphPosition).sqrMagnitude < 0.0001f)
             {
                 return;
             }
 
-            _applyPositionWithoutNotify(NodeData.GraphPosition);
+            _applyPositionWithoutNotify(NodeDataData.GraphPosition);
         }
 
         /// <summary>
@@ -341,7 +341,7 @@ namespace HGraph.Editor
                 return;
             }
 
-            _dragStartPosition = NodeData.GraphPosition;
+            _dragStartPosition = NodeDataData.GraphPosition;
         }
 
         private void _onMouseUp(MouseUpEvent evt)
@@ -360,7 +360,7 @@ namespace HGraph.Editor
             }
 
             // 拖拽结束后只提交一次移动命令，避免拖拽每一帧都污染命令栈。
-            _onMoveRequested?.Invoke(NodeData, dragStartPosition, currentPosition);
+            _onMoveRequested?.Invoke(NodeDataData, dragStartPosition, currentPosition);
         }
     }
 }
