@@ -23,6 +23,17 @@ namespace HGraph.Editor
             window.Show();
         }
 
+        /// <summary>
+        /// 打开图编辑器窗口并加载指定的 .hgraph 文件。
+        /// </summary>
+        /// <param name="assetPath">资源路径。</param>
+        public static void OpenGraphFile(string assetPath)
+        {
+            var window = GetWindow<HGraphWindow>(false, "HGraph Editor");
+            window.Show();
+            window.LoadGraphFromPath(assetPath);
+        }
+
         // ============ 状态 ============
 
         /// <summary>
